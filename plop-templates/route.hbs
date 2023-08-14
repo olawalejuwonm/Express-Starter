@@ -1,0 +1,13 @@
+import express from 'express';
+import {{fcapitalize name}}Controller from '../controllers/{{name}}Controller';
+import {
+  authenticate,
+  authenticateAdmin,
+  authenticateUser,
+  checkUserTypes,
+} from '../middlewares/authentication';
+
+const router = express.Router();
+
+
+export default router;

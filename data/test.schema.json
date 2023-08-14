@@ -1,0 +1,21 @@
+{
+  "id": 518368,
+  "num_rows": 1000,
+  "file_format": "json",
+  "name": "test",
+  "array": true,
+  "columns": [
+    {
+      "name": "Make",
+      "null_percentage": 0,
+      "type": "Car Make",
+      "formula": null
+    },
+    {
+      "name": "Model",
+      "null_percentage": 0,
+      "type": "Car Model",
+      "formula": null
+    }
+  ]
+}

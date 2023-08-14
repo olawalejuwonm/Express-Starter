@@ -1,0 +1,71 @@
+import { checkUserTypesService } from '../../middlewares/authentication';
+import { GuardFunction } from '../../guards';
+
+export const canCreate{{fcapitalize name}}: GuardFunction = async (req, exec) => {
+  try {
+    await checkUserTypesService(req, ['super']);
+    // throw new Error('Not implemented');
+    return {
+      auth: true,
+      message: 'Can create {{fcapitalize name}}',
+      query: {},
+    };
+  } catch (error) {
+    return {
+      auth: false,
+      message: error instanceof Error ? error.message : "Can't create {{fcapitalize name}}",
+      query: {},
+    };
+  }
+};
+
+export const canFetch{{fcapitalize name}}: GuardFunction = async (req) => {
+  try {
+    await checkUserTypesService(req, ['super']);
+    return {
+      auth: true,
+      message: 'Can fetch {{fcapitalize name}}',
+      query: {},
+    };
+  } catch (error) {
+    return {
+      auth: false,
+      message: error instanceof Error ? error.message : "Can't fetch {{fcapitalize name}}",
+      query: {},
+    };
+  }
+};
+
+export const canUpdate{{fcapitalize name}}: GuardFunction = async (req) => {
+  try {
+    await checkUserTypesService(req, ['super']);
+    return {
+      auth: true,
+      message: 'Can update {{fcapitalize name}}',
+      query: {},
+    };
+  } catch (error) {
+    return {
+      auth: false,
+      message: error instanceof Error ? error.message : "Can't update {{fcapitalize name}}",
+      query: {},
+    };
+  }
+};
+
+export const canDelete{{fcapitalize name}}: GuardFunction = async (req) => {
+  try {
+    await checkUserTypesService(req, ['super']);
+    return {
+      auth: true,
+      message: 'Can delete {{fcapitalize name}}',
+      query: {},
+    };
+  } catch (error) {
+    return {
+      auth: false,
+      message: error instanceof Error ? error.message : "Can't delete {{fcapitalize name}}",
+      query: {},
+    };
+  }
+};

@@ -1,0 +1,39 @@
+import { PermType, isPermitted } from '.';
+import { UserType } from '../models/userModel';
+
+export const canCreate{{fcapitalize name}} = async (user: UserType): Promise<PermType> => {
+  const canCreate = await isPermitted(user, 'create:{{lowerCase name}}');
+  return {
+    ...canCreate,
+  };
+};
+
+export const canRead{{fcapitalize name}} = async (user: UserType): Promise<PermType> => {
+  const canRead = await isPermitted(user, 'read:{{lowerCase name}}');
+  return {
+    ...canRead,
+  };
+};
+
+export const canUpdate{{fcapitalize name}} = async (user: UserType): Promise<PermType> => {
+  const canUpdate = await isPermitted(user, 'update:{{lowerCase name}}');
+  return {
+    ...canUpdate,
+  };
+};
+
+export const canDelete{{fcapitalize name}} = async (user: UserType): Promise<PermType> => {
+  const canDelete = await isPermitted(user, 'delete:{{lowerCase name}}');
+  return {
+    ...canDelete,
+  };
+};
+
+export const canAssign{{fcapitalize name}} = async (user: UserType): Promise<PermType> => {
+  const canAssign = await isPermitted(user, 'assign:{{lowerCase name}}');
+  return {
+    ...canAssign,
+  };
+};
+
+

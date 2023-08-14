@@ -1,0 +1,13 @@
+/* global use, db */
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+//Delete all collections  in the database
+const database = 'ExpressStarter';
+const collection = 'NEW_COLLECTION_NAME';
+
+// The current database to use.
+use(database);
+db.getCollectionNames().forEach(function (collection) {
+  db[collection].drop();
+});

@@ -1,0 +1,40 @@
+import mongoose, { Schema, InferSchemaType } from 'mongoose';
+import mongooseIdValidator from 'mongoose-id-validator2';
+
+const {{flowercase name}}Schema = new Schema(
+  {
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      immutable: true,
+    },
+    record: {
+      type: String,
+      immutable: true,
+      unique: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+{{flowercase name}}Schema.plugin(mongooseIdValidator);
+
+export type {{fcapitalize name}}Type = InferSchemaType<
+  typeof {{flowercase name}}Schema
+>;
+
+{{flowercase name}}Schema.pre('save', function (next) {
+  const doc = this as {{fcapitalize name}}Type;
+  // this.record = doc.name + '-' + doc.createdBy;
+  next();
+});
+
+const {{fcapitalize name}} = mongoose.model<{{fcapitalize name}}Type>(
+  '{{fcapitalize name}}',
+  {{flowercase name}}Schema,
+);
+
+export default {{fcapitalize name}};

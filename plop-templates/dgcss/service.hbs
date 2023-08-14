@@ -1,0 +1,167 @@
+import { QueryOptions, UpdateQuery } from 'mongoose';
+import { QueryReturn, find, findOne } from '../../utilities/query';
+import { Create{{fcapitalize name}}Dto, Update{{fcapitalize name}}Dto } from './dto';
+import { {{fcapitalize name}} } from './schema';
+import { serviceResponseType } from '../../utilities/response';
+import { validateDTO } from '../../middlewares/validate';
+import { {{fcapitalize name}}Model } from '../../models';
+
+export default class {{fcapitalize name}}Service {
+  /**
+   * Fetches {{fcapitalize name}}s from the database based on the provided queries and conditions.
+   * @param queries - The queries to filter the {{fcapitalize name}}s by.
+   * @param conditions - The conditions to apply to the query (optional).
+   * @returns A promise that resolves to an array of {{fcapitalize name}}s that match the provided queries and conditions.
+   */
+  static async fetch(
+    queries: { [key: string]: any },
+    conditions: {} | undefined = undefined,
+  ): Promise<serviceResponseType<QueryReturn<{{fcapitalize name}}>>> {
+    try {
+      let found{{fcapitalize name}}s: QueryReturn<{{fcapitalize name}}>;
+      if (conditions) {
+        found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries, conditions);
+      }
+      found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries);
+      return {
+        success: true,
+        message: '{{fcapitalize name}}s fetched successfully',
+        data: found{{fcapitalize name}}s,
+        statusCode: 200,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async create(
+    payload: Create{{fcapitalize name}}Dto,
+    data: Partial<{{fcapitalize name}}> = {},
+  ): Promise<serviceResponseType<{{fcapitalize name}}>> {
+    // return await {{fcapitalize name}}Model.create(data);
+    validateDTO(Create{{fcapitalize name}}Dto, payload);
+    try {
+      const created{{fcapitalize name}} = await {{fcapitalize name}}Model.create({ ...payload, ...data });
+      return {
+        success: true,
+        message: '{{fcapitalize name}} created successfully',
+        data: created{{fcapitalize name}},
+        statusCode: 201,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async fetchOne(
+    queries: { [key: string]: any },
+    conditions: {} | undefined = undefined,
+  ): Promise<serviceResponseType<{{fcapitalize name}}>> {
+    try {
+      let found{{fcapitalize name}};
+      if (conditions) {
+        found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, conditions);
+      }
+      found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
+      return {
+        success: true,
+        message: '{{fcapitalize name}} fetched successfully',
+        data: found{{fcapitalize name}},
+        statusCode: 200,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async updateOne(
+    queries: { [key: string]: any; _id: string },
+    data: Update{{fcapitalize name}}Dto,
+    others: UpdateQuery<{{fcapitalize name}}> & Partial<{{fcapitalize name}}> = {},
+    options: QueryOptions = { new: true, runValidators: true },
+  ): Promise<serviceResponseType<{{fcapitalize name}} | null>> {
+    try {
+      // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
+      // if (!found{{fcapitalize name}}) {
+      //   throw {
+      //     message: '{{fcapitalize name}} not found or access denied',
+      //     statusCode: 404,
+      //   };
+      // }
+      const updated{{fcapitalize name}} = await {{fcapitalize name}}Model.findOneAndUpdate(
+        queries,
+        { ...data, ...others },
+        options,
+      );
+      if (!updated{{fcapitalize name}}) {
+        throw {
+          message: '{{fcapitalize name}} not found or access denied',
+          statusCode: 404,
+        };
+      }
+      return {
+        success: true,
+        message: '{{fcapitalize name}} updated successfully',
+        data: updated{{fcapitalize name}},
+        statusCode: 200,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async deleteOne(
+    id: string,
+    queries: { [key: string]: any },
+  ): Promise<serviceResponseType<{{fcapitalize name}} | null>> {
+    try {
+      // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, {
+      //   _id: id,
+      // });
+      // if (!found{{fcapitalize name}}) {
+      //   throw {
+      //     message: '{{fcapitalize name}} not found or access denied',
+      //     statusCode: 404,
+      //   };
+      // }
+      const deleted{{fcapitalize name}} = await {{fcapitalize name}}Model.findOneAndDelete({
+        ...queries,
+        _id: id,
+      });
+      if (!deleted{{fcapitalize name}}) {
+        throw {
+          message: '{{fcapitalize name}} not found or access denied',
+          statusCode: 404,
+        };
+      }
+      return {
+        success: true,
+        message: '{{fcapitalize name}} deleted successfully',
+        data: deleted{{fcapitalize name}},
+        statusCode: 204,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+}
