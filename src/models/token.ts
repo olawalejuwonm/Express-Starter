@@ -10,7 +10,8 @@ const tokenSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ['verify-email', 'reset-password'],
+      //TODO: Turn to typegoose and make enum
+      enum: ['verify-email', 'reset-password', 'verify-phone'],
       required: true,
     },
     userType: {

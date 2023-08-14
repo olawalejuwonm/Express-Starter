@@ -45,6 +45,7 @@ export enum UserTypes {
   INDIVIDUAL = 'individual',
   SUPER = 'super',
   ADMIN = 'admin',
+  EMPLOYER = 'employer',
 }
 
 export enum Status {
