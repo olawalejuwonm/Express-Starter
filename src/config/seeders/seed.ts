@@ -11,7 +11,7 @@ import _ from 'lodash';
 const payload = {
   firstName: 'Super',
   lastName: 'Admin',
-  email: `admin@${process.env.APP_NAME}.com`,
+  email: `admin@${process.env.APP_NAME || ""}.com`,
   password: 'Super@1234',
   phone: '123456677',
   emailVerified: true,

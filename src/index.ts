@@ -62,7 +62,7 @@ app.use('/api/v1', router);
 //   definition: {
 //     openapi: '3.0.0',
 //     info: {
-//       title: process.env.APP_NAME + " API",
+//       title: process.env.APP_NAME || "" + " API",
 //       version: '1.0.0',
 //     },
 //   },

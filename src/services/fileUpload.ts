@@ -149,7 +149,7 @@ export const uploadTheFile = async (
       promises.push(
         uploader.upload(file, {
           resource_type: 'auto',
-          folder: process.env.APP_NAME,
+          folder: process.env.APP_NAME || "",
         }),
       ); // change this line for other uploads
     };

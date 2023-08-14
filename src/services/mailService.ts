@@ -3,7 +3,7 @@ import { gmailTransporter } from './notification';
 export default async (subject: string, to: string, body: string) => {
   try {
     const mailOptions = {
-      from: `"${process.env.APP_NAME}" <${process.env.MAIL_SENDER}>`,
+      from: `"${process.env.APP_NAME || ""}" <${process.env.MAIL_SENDER}>`,
       to,
       subject,
       html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -115,7 +115,7 @@ export default async (subject: string, to: string, body: string) => {
                            <tr style="border-collapse:collapse"> 
                             <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;text-decoration:underline;color:#FFCE00;font-size:14px"><img 
                               src="${process.env.APP_LOGO}"
-                               alt="${process.env.APP_NAME}" title="${process.env.APP_NAME}" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="92"></a></td> 
+                               alt="${process.env.APP_NAME || ""}" title="${process.env.APP_NAME || ""}" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="92"></a></td> 
                            </tr> 
                          </table></td> 
                        </tr> 
@@ -147,7 +147,7 @@ export default async (subject: string, to: string, body: string) => {
                          <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                            <tr style="border-collapse:collapse"> 
                             <td align="center" style="padding:0;Margin:0"><h2 style="Margin:0;line-height:29px;mso-line-height-rule:exactly;font-family:tahoma, verdana, segoe, sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#333333">
-                            ${process.env.APP_NAME}</h2></td> 
+                            ${process.env.APP_NAME || ""}</h2></td> 
                            </tr> 
                            <tr style="border-collapse:collapse"> 
                             <td align="center" style="Margin:0;padding-top:5px;padding-bottom:10px;padding-left:20px;padding-right:20px;font-size:0"> 
@@ -226,7 +226,7 @@ export default async (subject: string, to: string, body: string) => {
                            <tr style="border-collapse:collapse"> 
                             <td align="center" style="padding:0;Margin:0;font-size:0px"><img class="adapt-img"
                                src="${process.env.APP_LOGO}"
-                                alt="${process.env.APP_NAME}" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="135"></td> 
+                                alt="${process.env.APP_NAME || ""}" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="135"></td> 
                            </tr> 
                          </table></td> 
                        </tr> 

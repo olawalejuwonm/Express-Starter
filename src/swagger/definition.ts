@@ -51,9 +51,9 @@ export const source: Options | undefined = {
   definition: {
     openapi: '3.0.2',
     info: {
-      title: process.env.APP_NAME + ' API',
+      title: process.env.APP_NAME || "" + ' API',
       version,
-      description: 'API for ' + process.env.APP_NAME,
+      description: 'API for ' + process.env.APP_NAME || "",
     },
     basePath,
     externalDocs: {

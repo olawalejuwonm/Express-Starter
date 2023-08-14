@@ -191,7 +191,7 @@ function mongooseDocsGenerateIndexHTML(
 		<html lang="en">
 		<head>
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-			<title> ${process.env.APP_NAME} Docs</title>
+			<title> ${process.env.APP_NAME || ""} Docs</title>
 			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" 
 				integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"/>
 		</head>
@@ -202,7 +202,7 @@ function mongooseDocsGenerateIndexHTML(
 						${generateNavigation(mongooseSchemas)}
 					</div>
 					<div class="col-12 col-md-9">
-						<h1>Welcome to ${process.env.APP_NAME} Docs</h1>
+						<h1>Welcome to ${process.env.APP_NAME || ""} Docs</h1>
 						<p>Here you can find documentation for all fields used in this application.</p>
             <p>
             Understanding the concept used will make it easier for you to develop faster with this API.

@@ -8,7 +8,7 @@ import debugServer from 'debug';
 import { createServer } from 'http';
 import app from '../index';
 
-const debug = debugServer(process.env.APP_NAME + ':server');
+const debug = debugServer(process.env.APP_NAME || "" + ':server');
 
 /**
  * Normalize a port into a number, string, or false.
