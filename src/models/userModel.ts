@@ -42,7 +42,7 @@ export type UserModelType = typeof UserModel &
 // id false
 
 export enum UserTypes {
-  STAFF = 'staff',
+  INDIVIDUAL = 'individual',
   SUPER = 'super',
   ADMIN = 'admin',
 }
@@ -72,6 +72,9 @@ export class User {
     comment: "This is an email only for the user's login",
   })
   email!: string;
+
+  @prop({ required: true, immutable: true })
+  phone!: string;
 
   @prop({ autopopulate: true, ref: 'Profile', required: true })
   profile: string;

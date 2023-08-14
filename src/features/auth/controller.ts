@@ -56,7 +56,11 @@ router.post('/login', async (req: Request, res: Response) => {
  /request-reset-password
  *
  */
-
+router.post('/register', async (req: Request, res: Response) => {
+  const body = validateDTO(RegisterDto, req.body);
+  const data = throwIfError(await AuthService.register(body));
+  return response(res, data.statusCode, data.message, data.data);
+});
 
 router.post(
   '/change-password',
@@ -68,7 +72,7 @@ router.post(
   },
 );
 
-router.post('/verify-email-account',  async (req: Request, res: Response) => {
+router.post('/verify-email-account', async (req: Request, res: Response) => {
   const body = validateDTO(VerifyEmailDto, req.body);
   const data = throwIfError(await AuthService.verifyEmailAccount(body));
   return response(res, 201, data.message, data.data);

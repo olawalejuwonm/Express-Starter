@@ -16,6 +16,11 @@ export class RegisterDto implements Partial<Profile> {
   @IsNotEmpty()
   lastName?: string;
 
+  @IsNotEmpty()
+  type?: string | undefined;
+
+  @IsNotEmpty()
+  phone?: string | undefined;
 }
 export class LoginDto {
   // export class CreateAuthDto implements Partial<Auth> {

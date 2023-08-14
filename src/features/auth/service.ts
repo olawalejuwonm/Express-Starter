@@ -59,6 +59,63 @@ export default class AuthService {
     }
   }
 
+  static async register(data: RegisterDto): Promise<serviceResponseType> {
+    try {
+      const { email, password } = data;
+
+      const profile = await ProfileModel.create({
+        ...data,
+        // ...user.toObject(),
+        // _id: user._id,
+        // createdBy: user._id,
+      });
+
+      const user = await User.register(
+        new User({
+          ...(profile.toObject ? profile.toObject() : profile),
+          profile: profile._id,
+          status: 'active',
+          emailVerified: true,
+          email,
+        }),
+        password,
+      );
+
+      profile.createdBy = user._id.toString();
+      await profile.save();
+
+      console.log('user', user._id);
+
+      await mailService(
+        'Welcome to the team',
+        email,
+        // welcome message with email and password
+        `<p>Hi ${profile.firstName},</p>
+      <p>Welcome to the team.</p>
+      <p>Here are your login details:</p>
+      <p>Email: ${email}</p>
+      <p>Password: ${password}</p>
+      <p>Kindly change your password after logging in.</p>
+      <p>Thank you.</p>
+      <p>Regards,</p>
+      <p>Team</p>
+      `,
+      );
+
+      return {
+        success: true,
+        message: 'User created successfully',
+        data: user,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
   static async registerStaff(data: RegisterDto): Promise<serviceResponseType> {
     try {
       const { email, password } = data;

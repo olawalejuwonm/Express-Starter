@@ -64,14 +64,6 @@ export class Profile {
   @prop()
   email?: string;
 
-  @prop({
-    unique: true,
-  })
-  employeeId?: string;
-
-  @prop()
-  probationPeriod?: Date;
-
   @prop()
   avatar?: string;
 
@@ -105,34 +97,7 @@ export class Profile {
   @prop()
   dateOfBirth?: Date;
 
-  //TODO: Work on Branch
 
-  @prop()
-  pension?: string;
-
-  @prop()
-  pensionNumber?: string;
-
-  @prop()
-  onHMOScheme?: boolean;
-
-  @prop()
-  hmoProvider?: string;
-
-  @prop()
-  hmoNumber?: string;
-
-  @prop()
-  hmoId?: string;
-
-  @prop()
-  hmoPlan?: string;
-
-  @prop()
-  hmoHospital?: string;
-
-  @prop()
-  hmoStatus?: string;
 
   @prop({ type: () => [Education] })
   education?: Education[];
