@@ -7,11 +7,12 @@ import { importAllModels } from '../../controllers/generators/service';
 import { crudModelPermssions } from '../../guards';
 import { Types } from 'mongoose';
 import _ from 'lodash';
+import { ProfileModel } from '../../models';
 
 const payload = {
   firstName: 'Super',
   lastName: 'Admin',
-  email: `admin@${process.env.APP_NAME || ""}.com`,
+  email: `admin@${process.env.APP_NAME || ''}.com`,
   password: 'Super@1234',
   phone: '123456677',
   emailVerified: true,
@@ -53,7 +54,12 @@ const seed = async (): Promise<void> => {
     });
 
     if (!admin) {
-      admin = await User.register(new User(payload), payload.password);
+      // Create Profile
+      const profile = await ProfileModel.create(payload);
+      admin = await User.register(
+        new User({ ...payload, profile: profile._id }),
+        payload.password,
+      );
       console.log('admin seeded successfully', admin);
     }
 

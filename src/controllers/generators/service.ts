@@ -9,13 +9,11 @@ import { authenticator } from '../../middlewares/authentication';
 import { NextFunction, Request, Response } from 'express';
 import { validForm } from '../../middlewares/validators';
 import fs from 'fs';
-import thePermission from '../../utilities/permission';
 import path from 'path';
 import {
   mongooseDocsJSON,
   mongooseDocsOutputHTML,
 } from '../../mongoose-docs/src';
-import app from '../..';
 import axios from 'axios';
 import { FileModel } from '../../models';
 let models: any = {};
@@ -45,9 +43,11 @@ export async function importAllModels(
     //   return;
     // }
 
-    const schemaJSON = mongooseDocsJSON(mongoose);
+    if (process.env.NODE_ENV !== 'production') {
+      const schemaJSON = mongooseDocsJSON(mongoose);
 
-    mongooseDocsOutputHTML(schemaJSON, __dirname + '../../../../public/docs');
+      mongooseDocsOutputHTML(schemaJSON, __dirname + '../../../../public/docs');
+    }
     return models;
   } catch (err) {
     console.log(err, 'error in generating docs');

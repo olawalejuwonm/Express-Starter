@@ -14,7 +14,6 @@ import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
 import { rawSpec } from './swagger/definition';
 
-// const expressListRoutes = require('express-list-routes');
 const listEndpoints = require('express-list-endpoints');
 
 const app: Application = express();
@@ -24,18 +23,18 @@ app.use(cors());
 seed();
 
 app.use('/static', express.static('public'));
-app.use(
-  '/swagger',
-  swaggerUi.serve,
-  swaggerUi.setup(rawSpec, {
-    explorer: true,
-    // swaggerOptions: {
-    // // add base ur
-    // }
-  }),
-);
-
-
+if (process.env.NODE_ENV !== 'production') {
+  app.use(
+    '/swagger',
+    swaggerUi.serve,
+    swaggerUi.setup(rawSpec, {
+      explorer: true,
+      // swaggerOptions: {
+      // // add base ur
+      // }
+    }),
+  );
+}
 app.use(express.json());
 
 app.use(
@@ -76,28 +75,28 @@ app.use('/api/v1', router);
 // delete options?.swaggerDefinition?.apis;
 
 // const test: swaggerUi.SwaggerUiOptions;
-const routes = listEndpoints(app);
-app.get('/endpoints', (req: Request, res: Response) => {
-  // const routes = expressListRoutes(app, { prefix: '/api/v1' });
-  // console.log(routes, 'routes');
-  // console.log(listEndpoints(app));
+if (process.env.NODE_ENV !== 'production') {
+  const routes = listEndpoints(app);
+  app.get('/endpoints', (req: Request, res: Response) => {
+    // const routes = expressListRoutes(app, { prefix: '/api/v1' });
+    // console.log(routes, 'routes');
+    // console.log(listEndpoints(app));
 
-  // res.json(routes);
-  res.setHeader('Content-Type', 'text/html');
-  res.send(
-    `
+    // res.json(routes);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(
+      `
     <html>
     <p>API endpoints</p>
     <table><tbody>${routes.map(
       (route: { methods: any; path: any }) =>
-        `<tr><td><strong>${route.methods.join()}</strong></td><td>${
+        `<tr><td><strong>${route.methods.join()}</strong></td><td><a href=${
           route.path
-        }</td></tr>`
+        }>${route.path}</a></td></tr>`,
     )}</tbody></table> </html>`,
-  );
-});
-
-
+    );
+  });
+}
 
 app.all('*', (req: Request, res: Response) => {
   res.status(404).json({
