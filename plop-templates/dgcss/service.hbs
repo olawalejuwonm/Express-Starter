@@ -22,7 +22,9 @@ export default class {{fcapitalize name}}Service {
       if (conditions) {
         found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries, conditions);
       }
+      else {
       found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries);
+      }
       return {
         success: true,
         message: '{{fcapitalize name}}s fetched successfully',
@@ -70,7 +72,9 @@ export default class {{fcapitalize name}}Service {
       if (conditions) {
         found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, conditions);
       }
+      else {
       found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
+      }
       return {
         success: true,
         message: '{{fcapitalize name}} fetched successfully',

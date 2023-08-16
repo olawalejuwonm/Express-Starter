@@ -1,5 +1,10 @@
 import _ from 'lodash';
-import mongoose, { Model } from 'mongoose';
+import mongoose, {
+  FilterQuery,
+  Model,
+  ProjectionType,
+  QueryOptions,
+} from 'mongoose';
 import { Document } from 'mongoose';
 
 const processOperators = (queryA: any) => {
@@ -70,12 +75,14 @@ export type QueryReturn<DT> = {
 };
 const get = async <DT>(
   model: Model<DT>,
-  queryA: { [key: string]: string },
+  queryA: FilterQuery<DT>,
   conditionsA: any = {},
+  projection?: ProjectionType<DT> | null | undefined,
+  options?: QueryOptions<DT> | null | undefined,
   multiple = true,
 ) => {
   try {
-    let query = queryA;
+    let query: any = queryA;
     let conditions = conditionsA;
     const populate = query._populate || conditions._populate;
     const select = query._select || conditions._select;
@@ -237,9 +244,9 @@ const get = async <DT>(
     let q: any;
 
     if (multiple) {
-      q = model.find(conditions);
+      q = model.find(conditions, projection, options);
     } else {
-      q = model.findOne(conditions);
+      q = model.findOne(conditions, projection, options);
     }
 
     if (populate) {
@@ -286,15 +293,21 @@ const get = async <DT>(
 };
 export const find = async <DT>(
   model: Model<DT>,
-  query: any,
+  query: FilterQuery<DT>,
   conditions?: object | undefined,
-): Promise<QueryReturn<DT>> => get(model, query, conditions);
+  projection?: ProjectionType<DT> | null | undefined,
+  options?: QueryOptions<DT> | null | undefined,
+): Promise<QueryReturn<DT>> =>
+  get(model, query, conditions, projection, options);
 
 export const findOne = async <DT>(
   model: Model<DT>,
-  query: any,
+  query: FilterQuery<DT>,
   conditions?: object | undefined,
-): Promise<Document<DT> & DT> => get(model, query, conditions, false);
+  projection?: ProjectionType<DT> | null | undefined,
+  options?: QueryOptions<DT> | null | undefined,
+): Promise<Document<DT> & DT> =>
+  get(model, query, conditions, projection, options, false);
 
 export default {
   find,

@@ -1,4 +1,3 @@
-/* eslint-disable array-callback-return */
 import Datauri from 'datauri/parser';
 import path from 'path';
 
@@ -149,7 +148,7 @@ export const uploadTheFile = async (
       promises.push(
         uploader.upload(file, {
           resource_type: 'auto',
-          folder: process.env.APP_NAME || "",
+          folder: process.env.APP_NAME,
         }),
       ); // change this line for other uploads
     };
@@ -220,7 +219,8 @@ export const uploadTheFile = async (
       fileObject,
       success: true,
     };
-  } catch (error: any) {
+  } catch (error) {
+    console.log('file Upload error', error);
     // throw error;
     return {
       success: false,
