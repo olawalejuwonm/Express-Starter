@@ -19,7 +19,7 @@ export const canCreate{{fcapitalize name}}: GuardFunction = async (req, exec) =>
   }
 };
 
-export const canFetch{{fcapitalize name}}: GuardFunction = async (req) => {
+export const canFetch{{fcapitalize name}}: GuardFunction = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -36,7 +36,7 @@ export const canFetch{{fcapitalize name}}: GuardFunction = async (req) => {
   }
 };
 
-export const canUpdate{{fcapitalize name}}: GuardFunction = async (req) => {
+export const canUpdate{{fcapitalize name}}: GuardFunction = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -53,7 +53,7 @@ export const canUpdate{{fcapitalize name}}: GuardFunction = async (req) => {
   }
 };
 
-export const canDelete{{fcapitalize name}}: GuardFunction = async (req) => {
+export const canDelete{{fcapitalize name}}: GuardFunction = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {

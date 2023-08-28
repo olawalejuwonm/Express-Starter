@@ -57,7 +57,6 @@ router.get('/', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canFetch{{fcapitalize name}}(req, false));
   const content = throwIfError(
     await {{fcapitalize name}}Service.fetch(req.query, {
-      createdBy: req.user._id,
       ...perm.query,
     }),
   );
@@ -91,7 +90,6 @@ router.get('/:id', async (req: Request, res: Response) => {
   const content = throwIfError(
     await {{fcapitalize name}}Service.fetchOne(req.query, {
       _id: req.params.id,
-      createdBy: req.user._id,
       ...perm.query,
     }),
   );
@@ -161,7 +159,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canDelete{{fcapitalize name}}(req, false));
   const content = throwIfError(
     await {{fcapitalize name}}Service.deleteOne(req.params.id, {
-      createdBy: req.user._id,
       ...perm.query,
     }),
   );
