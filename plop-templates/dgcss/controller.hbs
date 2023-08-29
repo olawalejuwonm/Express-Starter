@@ -30,9 +30,11 @@ const {{fcapitalize name}}PathName = '/{{fcapitalize name}}';
 //  *           application/json:
  */
 router.post('/', async (req: Request, res: Response) => {
-  throwPermIfError(await canCreate{{fcapitalize name}}(req, true));
+  const perm = throwPermIfError(await canCreate{{fcapitalize name}}(req, true));
   const content = throwIfError(
-    await {{fcapitalize name}}Service.create(req.body, { createdBy: req.user._id }),
+    await {{fcapitalize name}}Service.create(req.body, { 
+      ...perm.query
+     }),
   );
   return response(res, content.statusCode, content.message, content.data);
 });
