@@ -46,6 +46,12 @@ export const validateDTO = <D extends data, C extends { new (): D }>(
   Object.keys(data).forEach((key: keyof D) => {
     instanceClass[key] = data[key];
   });
+  // delete all undefined properties
+  Object.keys(instanceClass).forEach((key: keyof D) => {
+    if (instanceClass[key] === undefined) {
+      delete instanceClass[key];
+    }
+  });
   console.log(
     classTemplate,
     'classTemplate',
