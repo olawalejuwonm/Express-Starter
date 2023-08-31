@@ -8,6 +8,15 @@ export type serviceResponseType<T = any> = {
   statusCode?: number;
 };
 
+export const serviceError = (error: any) => {
+  console.error(error);
+  return {
+    success: false,
+    message: error.message,
+    data: error,
+  };
+};
+
 export default <T = any>(
   res: Response,
   status: number,
