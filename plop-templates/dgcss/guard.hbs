@@ -8,7 +8,9 @@ export const canCreate{{fcapitalize name}}: GuardFunction = async (req, exec) =>
     return {
       auth: true,
       message: 'Can create {{fcapitalize name}}',
-      query: {},
+      query: {
+        createdBy: req.user._id
+      },
     };
   } catch (error) {
     return {
