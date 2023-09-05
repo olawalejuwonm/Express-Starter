@@ -1,0 +1,27 @@
+/**
+ * Updates {{name}}
+ * 
+ * @openapi
+ * 
+ * {{url}}:
+ *   put:
+ *     summary: Update {{name}}
+ *     tags:
+ *       - {{name}}
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GeneralBody'
+ *     responses:
+ *       200:
+ *         description: {{name}} updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ {{paramDocs}}
+ */

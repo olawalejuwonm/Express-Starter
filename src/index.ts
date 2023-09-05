@@ -3,16 +3,16 @@ import 'express-async-errors';
 import helmet from 'helmet';
 import './config/connectDb';
 import './environment';
-import log from './logger';
 import errorHandler from './middlewares/errorHandler';
 import morgan from 'morgan';
 import seed from './config/seeders/seed';
 import router from './routes/v1';
 import morganBody from 'morgan-body';
 import swaggerUi from 'swagger-ui-express';
-
 import cors from 'cors';
-import { rawSpec } from './swagger/definition';
+import { endpointSpec } from './swagger/definition';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const listEndpoints = require('express-list-endpoints');
 
@@ -23,18 +23,7 @@ app.use(cors());
 seed();
 
 app.use('/static', express.static('public'));
-if (process.env.NODE_ENV !== 'production') {
-  app.use(
-    '/swagger',
-    swaggerUi.serve,
-    swaggerUi.setup(rawSpec, {
-      explorer: true,
-      // swaggerOptions: {
-      // // add base ur
-      // }
-    }),
-  );
-}
+
 app.use(express.json());
 
 app.use(
@@ -54,49 +43,51 @@ morganBody(app, {
 app.use(morgan('combined'));
 app.use(helmet()); // For security
 
-app.use('/api/v1', router);
+app.use(`${process.env.BASE_PATH}`, router);
 
-// const options = {
-//   failOnErrors: true, // Whether or not to throw when parsing errors. Defaults to false.
-//   definition: {
-//     openapi: '3.0.0',
-//     info: {
-//       title: process.env.APP_NAME || "" + " API",
-//       version: '1.0.0',
-//     },
-//   },
-//   apis: ['./routes/*.ts'],
-// };
+const routes = listEndpoints(app);
 
-// const options = {
-//   ...source,
-//   swaggerDefinition: source,
-// };
-// delete options?.swaggerDefinition?.apis;
-
-// const test: swaggerUi.SwaggerUiOptions;
-if (process.env.NODE_ENV !== 'production') {
-  const routes = listEndpoints(app);
-  app.get('/endpoints', (req: Request, res: Response) => {
-    // const routes = expressListRoutes(app, { prefix: '/api/v1' });
-    // console.log(routes, 'routes');
-    // console.log(listEndpoints(app));
-
-    // res.json(routes);
-    res.setHeader('Content-Type', 'text/html');
-    res.send(
-      `
+app.get('/endpoints', (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(
+    `
     <html>
     <p>API endpoints</p>
     <table><tbody>${routes.map(
       (route: { methods: any; path: any }) =>
-        `<tr><td><strong>${route.methods.join()}</strong></td><td><a href=${
+        `<tr><td><strong>${route.methods.join()}</strong></td><td>${
           route.path
-        }>${route.path}</a></td></tr>`,
+        }</td></tr>`,
     )}</tbody></table> </html>`,
-    );
-  });
-}
+  );
+});
+
+app.use(
+  '/swagger',
+  swaggerUi.serve,
+  swaggerUi.setup(endpointSpec(routes), {
+    explorer: true,
+    swaggerOptions: {
+      // https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
+      defaultModelsExpandDepth: -1,
+      displayRequestDuration: true,
+      filter: true,
+      tryItOutEnabled: true,
+      persistAuthorization: true,
+      // deepLinking: true,
+      docExpansion: 'none',
+      // maxDisplayedTags: 5,
+    },
+  }),
+);
+
+// render spec.json
+app.get('/swagger.json', (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(
+    fs.readFileSync(path.resolve(__dirname, './swagger/spec.json'), 'utf8'),
+  );
+});
 
 app.all('*', (req: Request, res: Response) => {
   res.status(404).json({

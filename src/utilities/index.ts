@@ -20,7 +20,7 @@ export const throwMiddleware = (fn: any) => async (req: Request, res: Response) 
 };
 
 export const createRandomLetters = (length: any) =>
-  customAlphabet(process.env.APP_NAME || "" || '', length)();
+  customAlphabet(process.env.APP_NAME || '', length)();
 export const createRandomNumbers = (length: number) =>
   customAlphabet('0123456789', length)();
 

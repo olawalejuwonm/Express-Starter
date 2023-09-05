@@ -1,0 +1,27 @@
+/**
+ * Creates {{name}}
+ *
+ * @openapi
+ *
+ * {{url}}:
+ *   post:
+ *     summary: Create a new {{name}}
+ *     tags:
+ *       - {{name}}
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GeneralBody'
+ *     responses:
+ *       200:
+ *         description: {{name}} created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+{{paramDocs}}
+ */

@@ -1,0 +1,21 @@
+/**
+ * Deletes {{name}}
+ * 
+ * @openapi
+ * 
+ * {{url}}:
+ *   delete:
+ *     summary: Delete {{name}}
+ *     tags:
+ *       - {{name}}
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: {{name}} deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ {{paramDocs}}
+ */

@@ -191,7 +191,7 @@ function mongooseDocsGenerateIndexHTML(
 		<html lang="en">
 		<head>
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-			<title> ${process.env.APP_NAME || ""} Docs</title>
+			<title> ${process.env.APP_NAME} Docs</title>
 			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" 
 				integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"/>
 		</head>
@@ -202,7 +202,7 @@ function mongooseDocsGenerateIndexHTML(
 						${generateNavigation(mongooseSchemas)}
 					</div>
 					<div class="col-12 col-md-9">
-						<h1>Welcome to ${process.env.APP_NAME || ""} Docs</h1>
+						<h1>Welcome to ${process.env.APP_NAME} Docs</h1>
 						<p>Here you can find documentation for all fields used in this application.</p>
             <p>
             Understanding the concept used will make it easier for you to develop faster with this API.
@@ -213,7 +213,16 @@ function mongooseDocsGenerateIndexHTML(
             <p>View the <a href="${
               process.env.DOCUMENTATION_URL
             }" target="_blank" rel="noopener noreferrer">postman documentation</a> for this API. This is not guaranteed to be always updated</p>
+            <p> Development base url: <a href="${
+              process.env.DEV_BASE_URL || "" + process.env.BASE_PATH
+            }" target="_blank" rel="noopener noreferrer"> ${
+            process.env.DEV_BASE_URL || "" + process.env.BASE_PATH
+          }</a></p>
+          <p>
+          Download openapi documentation <a href="/swagger.json" target="_blank" rel="noopener noreferrer">here</a>
+          </p>
 						<p>Click on document on the left to view the relevant fields</p>
+    
 
             <h2>QUERY DESCRIPTION</h2>
             <p>Queries are used to filter the data returned from the database. They are used to search for specific data.</p>
@@ -238,7 +247,7 @@ There are some endpoints however, that will search through some fields if only t
 Sample query:
 GET /products?category=cars&_populate[]=createdBy&_populate[]=updatedBy&_orderBy=title&_order=desc
 
-For cases when you want to filter a populated field, please indicate the flag _filterOnPopulate=true. An instance is when you are populating a profile field on a document and you only want a firstName that matches "Micheal" an instance would be: http://localhost:8080/api/v1//user/profiles?profile.firstName=#Miche&_filterOnPopulate=true
+For cases when you want to filter a populated field, please indicate the flag _filterOnPopulate=true. An instance is when you are populating a profile field on a document and you only want a firstName that matches "Micheal" an instance would be: http://localhost:8080${process.env.BASE_PATH}//user/profiles?profile.firstName=#Miche&_filterOnPopulate=true
 
 For some array fields
 You can filter item in array using == (making it triple equal ===)
