@@ -1,25 +1,19 @@
-## STart
-- Delete unused stuff
-- Rename globally
-- Reneame in .env
-- Change db
-- new vault
-- npx npm-check-updates -i --format group
+## Getting Started
 
-
-## Installation
-Note: This is a work in progress. The following instructions are not complete.
 To install the server, you need to have a working installation of [Node.js](https://nodejs.org/en/). Then, clone this repository and run `yarn install` in the root directory of the project. This will install all the dependencies.
 
-## Running the server
-To run the server, run `yarn dev` in the root directory of the project. This will start the server on port in environment variable `PORT` or port 8080 if `PORT` is not set.
-To build, run `yarn build`
+## Running the Server
 
-## Running the tests
+To run the server, run `yarn dev` in the root directory of the project. This will start the server on the port specified in the environment variable `PORT`, or port 8080 if `PORT` is not set. To build, run `yarn build`.
+
+## Running the Tests
+
 To run the tests, run `yarn test` in the root directory of the project. This will run all the tests in the `test` directory.
 
+## Services Used
 
-### Services Used
+This project uses the following services:
+
 - [Travis CI](https://travis-ci.org/) for continuous integration
 - [Coveralls](https://coveralls.io/) for test coverage
 - [Code Climate](https://codeclimate.com/) for code quality
@@ -46,9 +40,10 @@ To run the tests, run `yarn test` in the root directory of the project. This wil
 - [Faker](https://www.npmjs.com/package/faker) for fake data
 - [Nodemailer](https://www.npmjs.com/package/nodemailer) for email sending
 
+## Requirements
 
+To use this project, you will need the following:
 
-### Requirements
 - [Node.js](https://nodejs.org/en/)
 - [MongoDB](https://www.mongodb.com/)
 - [Redis](https://redis.io/)
@@ -71,7 +66,7 @@ To run the tests, run `yarn test` in the root directory of the project. This wil
 - [Docker Compose Environment File](https://docs.docker.com/compose/environment-variables/)
 
 ## Contributing
-To contribute to this project, please fork the repository and create a pull request. Please make sure that all tests pass before creating a pull request.
 
+To contribute to this project, please fork the repository and create a pull request. Please make sure that all tests pass before creating a pull request.
 
 console\.log\((.*)\)
