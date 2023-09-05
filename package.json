@@ -15,8 +15,7 @@
     "run": "ts-node --transpile-only",
     "lint": "eslint --fix",
     "startproj": "node dist/index.js",
-    "prepare": "husky install",
-    "check": "tsc --noEmit"
+    "prepare": "husky install"
   },
   "license": "MIT",
   "dependencies": {

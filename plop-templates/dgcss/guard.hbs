@@ -8,18 +8,20 @@ export const canCreate{{fcapitalize name}}: GuardFunction = async (req, exec) =>
     return {
       auth: true,
       message: 'Can create {{fcapitalize name}}',
-      query: {},
+      query: {
+        createdBy: req.user._id
+      },
     };
   } catch (error) {
     return {
       auth: false,
-      message: error instanceof Error ? error.message : "Can't create {{fcapitalize name}}",
+      message: error.message,
       query: {},
     };
   }
 };
 
-export const canFetch{{fcapitalize name}}: GuardFunction = async (req) => {
+export const canFetch{{fcapitalize name}}: GuardFunction = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -30,13 +32,13 @@ export const canFetch{{fcapitalize name}}: GuardFunction = async (req) => {
   } catch (error) {
     return {
       auth: false,
-      message: error instanceof Error ? error.message : "Can't fetch {{fcapitalize name}}",
+      message: error.message,
       query: {},
     };
   }
 };
 
-export const canUpdate{{fcapitalize name}}: GuardFunction = async (req) => {
+export const canUpdate{{fcapitalize name}}: GuardFunction = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -47,13 +49,13 @@ export const canUpdate{{fcapitalize name}}: GuardFunction = async (req) => {
   } catch (error) {
     return {
       auth: false,
-      message: error instanceof Error ? error.message : "Can't update {{fcapitalize name}}",
+      message: error.message,
       query: {},
     };
   }
 };
 
-export const canDelete{{fcapitalize name}}: GuardFunction = async (req) => {
+export const canDelete{{fcapitalize name}}: GuardFunction = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -64,7 +66,7 @@ export const canDelete{{fcapitalize name}}: GuardFunction = async (req) => {
   } catch (error) {
     return {
       auth: false,
-      message: error instanceof Error ? error.message : "Can't delete {{fcapitalize name}}",
+      message: error.message,
       query: {},
     };
   }

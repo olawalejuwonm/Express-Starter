@@ -22,21 +22,22 @@ export async function importAllModels(
   importPath: string = path.resolve(__dirname, '../../models'),
 ) {
   try {
-    const allFiles = fs.readdirSync(importPath);
+    // TODO: convert to use file://
+    // const allFiles = fs.readdirSync(importPath);
 
-    const mappedFiles = allFiles
-      .filter((fileName) => fileName.match(/\.ts$/))
-      .map((fileName) => {
-        return import(path.join(importPath, fileName));
-      });
+    // const mappedFiles = allFiles
+    //   .filter((fileName) => fileName.match(/\.ts$/))
+    //   .map((fileName) => {
+    //     return import(path.join(importPath, fileName));
+    //   });
 
-    // wait for all element in mappedFiles to fulfill then assign the module name to models
-    for (let i = 0; i < mappedFiles.length; i += 1) {
-      const module = await mappedFiles[i];
-      if (module.default) {
-        models[module.default.modelName] = module.default;
-      }
-    }
+    // // wait for all element in mappedFiles to fulfill then assign the module name to models
+    // for (let i = 0; i < mappedFiles.length; i += 1) {
+    //   const module = await mappedFiles[i];
+    //   if (module.default) {
+    //     models[module.default.modelName] = module.default;
+    //   }
+    // }
 
     // const settings = await Settings.findOne();
     // if (settings.showDocs !== true) {

@@ -138,9 +138,10 @@ module.exports = function (plop) {
         type: 'modify',
         path: 'src/routes/v1.ts',
         pattern:
-        //import position from '../features/position/controller';
-        /(import .* from '..\/features\/.*\/controller';)/,
-        template: "$1\nimport {{name}} from '../features/{{name}}/controller';\n",
+          // import position from '../features/position/controller';
+          /(import .* from '..\/features\/.*\/controller';)/,
+        template:
+          "$1\nimport {{name}} from '../features/{{name}}/controller';\n",
       },
       {
         type: 'modify',
@@ -155,20 +156,19 @@ module.exports = function (plop) {
         type: 'modify',
         path: 'src/models/index.ts',
         pattern: /(import .* from '..\/features\/.*\/model';)/,
-        template: "$1\nimport { {{fcapitalize name}} } from '../features/{{name}}/schema';",
+        template:
+          "$1\nimport { {{fcapitalize name}} } from '../features/{{name}}/schema';",
       },
-      //export const {{fcapitalize name}}Model = getModelForClass({{fcapitalize name}});
+      // export const {{fcapitalize name}}Model = getModelForClass({{fcapitalize name}});
 
       // This wil add the following line after the last line that contains 'export const'
       {
         type: 'modify',
         path: 'src/models/index.ts',
         pattern: /(export const .*Model = getModelForClass\(.*\);)/,
-        template: "$1\nexport const {{fcapitalize name}}Model = getModelForClass({{fcapitalize name}});",
+        template:
+          '$1\nexport const {{fcapitalize name}}Model = getModelForClass({{fcapitalize name}});',
       },
-
-
-
     ],
   });
 };

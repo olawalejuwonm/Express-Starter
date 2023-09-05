@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-yarn run check
+yarn run tsc --noEmi
 npx dotenv-vault push
