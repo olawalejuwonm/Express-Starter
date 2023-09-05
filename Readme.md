@@ -70,3 +70,5 @@ To use this project, you will need the following:
 To contribute to this project, please fork the repository and create a pull request. Please make sure that all tests pass before creating a pull request.
 
 console\.log\((.*)\)
+
+[![fork with dotenv-vault](https://badge.dotenv.org/fork.svg?r=1)](https://vault.dotenv.org/project/vlt_565762ccdcc103449020c2b60ce0b63e09fde380341c9bd0381c25d111ce699c/example)
