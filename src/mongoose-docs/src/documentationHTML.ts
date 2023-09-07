@@ -3,6 +3,13 @@ import path from 'path';
 import { IMongooseDocsSchema } from '../types';
 import writeFile from './writeFile';
 
+let docs = '';
+try {
+  docs = fs.readFileSync(path.join(__dirname, 'docs.md'), 'utf8');
+} catch (error) {
+  console.log(error);
+}
+
 /**
  * Escape HTML special characters like quotes and brackets.
  * @param string
@@ -76,7 +83,7 @@ function generateNavigation(
 			</a>`;
   });
   return `
-		<h3>Documents</h3>
+		<h3><a href="/static/docs">Documents</a></h3>
 		<div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
 			${anchorLinks.join('')}
 		</div>
@@ -214,17 +221,33 @@ function mongooseDocsGenerateIndexHTML(
               process.env.DOCUMENTATION_URL
             }" target="_blank" rel="noopener noreferrer">postman documentation</a> for this API. This is not guaranteed to be always updated</p>
             <p> Development base url: <a href="${
-              process.env.DEV_BASE_URL || "" + process.env.BASE_PATH
+              process.env.DEV_BASE_URL || '' + process.env.BASE_PATH
             }" target="_blank" rel="noopener noreferrer"> ${
-            process.env.DEV_BASE_URL || "" + process.env.BASE_PATH
-          }</a></p>
+              process.env.DEV_BASE_URL || '' + process.env.BASE_PATH
+            }</a></p>
           <p>
           Download openapi documentation <a href="/swagger.json" target="_blank" rel="noopener noreferrer">here</a>
           </p>
-						<p>Click on document on the left to view the relevant fields</p>
-    
+          <p> Ensure you that you read the query description <a href="#query-description">below</a> to understand how to use the query parameters</p>
+          <h2>Convert Schema to JSON</h2>
+          <p>Use this tool to convert your schema to JSON</p>
+          <form>
+        <textarea id="myTextarea" oninput="logTextarea()"
+            style="display: inline-block; vertical-align: top; width: 45%; height: 300px; margin-right: 5%;"></textarea>
+        <textarea id="displayTextarea" readonly
+            style="display: inline-block; vertical-align: top; width: 45%; height: 300px;"></textarea>
+    </form>
+    <br>
+    <button type="button" onclick="copyTextAreaToClipboard()" style="display: flex; margin-left: auto;">Copy to
+        Clipboard</button>
 
-            <h2>QUERY DESCRIPTION</h2>
+					<p>Click on document on the left to view the relevant fields</p>
+          <pre>
+        ${docs}
+          </pre>
+
+          
+            <h2 id="query-description">QUERY DESCRIPTION</h2>
             <p>Queries are used to filter the data returned from the database. They are used to search for specific data.</p>
             <p>Queries are passed as query parameters in the url. They are passed as key value pairs.</p>
             <p>
@@ -247,7 +270,9 @@ There are some endpoints however, that will search through some fields if only t
 Sample query:
 GET /products?category=cars&_populate[]=createdBy&_populate[]=updatedBy&_orderBy=title&_order=desc
 
-For cases when you want to filter a populated field, please indicate the flag _filterOnPopulate=true. An instance is when you are populating a profile field on a document and you only want a firstName that matches "Micheal" an instance would be: http://localhost:8080${process.env.BASE_PATH}//user/profiles?profile.firstName=#Miche&_filterOnPopulate=true
+For cases when you want to filter a populated field, please indicate the flag _filterOnPopulate=true. An instance is when you are populating a profile field on a document and you only want a firstName that matches "Micheal" an instance would be: http://localhost:8080${
+    process.env.BASE_PATH
+  }//user/profiles?profile.firstName=#Miche&_filterOnPopulate=true
 
 For some array fields
 You can filter item in array using == (making it triple equal ===)
@@ -257,6 +282,39 @@ To filter by size of an array you can use %
 					</div>
 				</div>
 			</div>
+      <script>
+      function logTextarea() {
+          const textarea = document.getElementById('myTextarea');
+          const displayTextarea = document.getElementById('displayTextarea');
+          displayTextarea.value = convertToJSON(textarea.value);
+      }
+
+      function copyTextAreaToClipboard() {
+          const displayTextarea = document.getElementById('displayTextarea');
+          displayTextarea.select();
+          document.execCommand('copy');
+          const copyButton = document.querySelector('button');
+          copyButton.textContent = 'Copied!';
+          setTimeout(() => {
+              copyButton.textContent = 'Copy to Clipboard';
+          }, 2000);
+      }
+
+      function convertToJSON(str) {
+          try {
+              let data = str.split("\\n");
+              let jsonData = {};
+              for (let i = 0; i < data.length; i++) {
+                  let key = data[i].replace("any", "");
+                  jsonData[key] = "";
+              }
+              console.log(JSON.stringify(jsonData));
+              return JSON.stringify(jsonData);
+          } catch (error) {
+              return error;
+          }
+      }
+  </script>
 		</body>
 		</html>
 	`;

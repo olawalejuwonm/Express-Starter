@@ -21,3 +21,5 @@ app.todo
 package-lock.json
 
 public/docs/**/*
+
+src/swagger/docs/**/*

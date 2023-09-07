@@ -7,6 +7,7 @@ import {
   validateSync,
 } from 'class-validator';
 
+
 export const validateEV = (
   req: Request,
   res: Response<any, Record<string, any>>,
@@ -26,9 +27,10 @@ export const validateEV = (
 };
 type data = Record<string, any>;
 
-export const validateDTO = <D extends data, C extends { new (): D }>(
+
+export const validateDTO = <D extends data, C extends { new (): any }>(
   classTemplate: C,
-  data: D,
+  data: InstanceType<C> | any,
   validatorOptions: ValidatorOptions = {
     // whitelist: true,
     forbidNonWhitelisted: true,
@@ -41,13 +43,13 @@ export const validateDTO = <D extends data, C extends { new (): D }>(
     // skipMissingProperties: false,
     whitelist: true,
   },
-): D => {
+): InstanceType<C> => {
   const instanceClass = new classTemplate();
-  Object.keys(data).forEach((key: keyof D) => {
-    instanceClass[key] = data[key];
+  Object.keys(data).forEach((key) => {
+    (instanceClass as any)[key] = data[key];
   });
   // delete all undefined properties
-  Object.keys(instanceClass).forEach((key: keyof D) => {
+  Object.keys(instanceClass).forEach((key) => {
     if (instanceClass[key] === undefined) {
       delete instanceClass[key];
     }

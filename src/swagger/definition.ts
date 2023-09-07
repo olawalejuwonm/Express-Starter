@@ -2,30 +2,36 @@ import path from 'path';
 import fs from 'fs';
 import swaggerJSDoc, { Options } from 'swagger-jsdoc';
 import { constructTemplate } from '../utilities/templates';
-
 const { version } = require('../../package.json');
 
-// getFullRoute(path.join(__dirname, '../'), '.ts');
-
-console.log(__dirname, 'dirname');
-// getFullRoute(__dirname, '.hbs');
-// getFullRoute(path.join(__dirname, '/docs'), '.hbs');
-
-const basePath = `${process.env.BASE_PATH}`;
 //TODO: work on look for
-const getFullRoute = (dir: string, format: string, lookfor?: string) => {
+const getFullRoute = (
+  dir: string,
+  format: string,
+  startWith: string[] = [],
+  lookfor?: string,
+) => {
   // resolve the path
   const resolvedPath = path.resolve(dir);
-  console.log(resolvedPath, 'resolvedPath');
-  const fullRoutedirs: string[] = [];
+  const fullRoutedirs = startWith;
+  if (!fs.existsSync(resolvedPath)) {
+    console.log('Directory not found');
+    return fullRoutedirs;
+  }
 
   fs.readdirSync(resolvedPath).forEach((file) => {
     //check if it is a directory
     if (fs.lstatSync(path.resolve(resolvedPath, file)).isDirectory()) {
       // if it is a directory, call the function again
-      getFullRoute(path.resolve(resolvedPath, file), format);
+      return getFullRoute(
+        path.resolve(resolvedPath, file),
+        format,
+        fullRoutedirs,
+      );
+      // return [...getFullRoute(path.resolve(resolvedPath, file), format), ...fullRoutedirs];
     } else {
       // if it is a file, push it to the array
+      // console.log(file, 'file', format, 'format', file.endsWith(format));
       if (file.endsWith(format)) {
         fullRoutedirs.push(path.resolve(dir, file));
       }
@@ -34,18 +40,104 @@ const getFullRoute = (dir: string, format: string, lookfor?: string) => {
 
   return fullRoutedirs;
 };
+
+// Iterate DTO and get all properties
+const gernerateDTOSchema = (ALLDTO: any) => {
+  const schemas: any = {};
+  for (const name in ALLDTO) {
+    const DTO = ALLDTO[name];
+    for (const key in DTO as any) {
+      let arrays: string[] = [];
+      let a = new DTO[key]();
+      let array = Object.getOwnPropertyNames(a);
+      // values
+      arrays = [...arrays, ...array];
+      let properties: any = {};
+      arrays.forEach((key) => {
+        properties[key] = {
+          type: 'any',
+          // default: ''
+        };
+      });
+
+      schemas[name?.toUpperCase() + '-' + key] = {
+        type: 'object',
+        properties,
+      };
+    }
+  }
+  return schemas;
+};
+
+// function that import files dynamically
+function importEsALL(paths: string[]) {
+  // console.log(paths, 'paths');
+  let allFiles: any = {};
+  try {
+    paths.map(async (fileName) => {
+      let fileResolved = path.resolve(fileName);
+
+      const module = require(fileResolved);
+      // console.log(module, 'module');
+
+      const resolvedname = fileResolved.split('dto.ts')[0];
+
+      // const path1 =
+      //   'C:\\Users\\USER\\Documents\\Github\\Cephas\\HR-CORE-API\\src\\features\\tool\\';
+      // const path2 = '/app/src/features/tool/';
+
+      const regex = /([a-zA-Z]+)\/?$/;
+      const match = regex.exec(resolvedname);
+      let name = match?.[1] ?? '';
+      if (name === '') {
+        const regex = /([a-zA-Z]+)\\?$/;
+        const match = regex.exec(resolvedname);
+        name = match?.[1] ?? '';
+      }
+      // console.log(name, 'name');
+      allFiles[name] = module;
+    });
+  } catch (e) {
+    console.log(e);
+    // is not a directory
+    // allFiles = [importPath];
+  }
+
+  return allFiles;
+}
+
+const featuresPath = path.join(__dirname, '../features');
+console.log(featuresPath, 'featuresPath');
+
+const dtoPattern = 'dto.ts';
+
+const basePath = `${process.env.BASE_PATH}`;
+
 const getRawSpec = (dir: string, format: string, lookfor?: string) => {
   const fullRoutedirs = getFullRoute(dir, format);
+  const dtoFiles = getFullRoute(featuresPath, dtoPattern);
+
+  const importedDTO = importEsALL(dtoFiles);
+  // console.log(importedDTO, 'importedDTO');
+
+  // console.log(importedDTO, 'importedDTO');
+  const schemas = gernerateDTOSchema(importedDTO);
+  // console.log(schemas, 'schemas');
+
   const source: Options | undefined = {
     failOnErrors: true, // Whether or not to throw when parsing errors. Defaults to false.
     definition: {
-      openapi: '3.0.3',
+      openapi: '3.1.0',
       info: {
         title: process.env.APP_NAME + ' API',
         version,
         description: 'API for ' + process.env.APP_NAME,
       },
-      consumes: ['application/json'],
+      consumes: [
+        'application/json',
+        'multipart/form-data',
+        'application/x-www-form-urlencoded',
+      ],
       components: {
         securitySchemes: {
           bearerAuth: {
@@ -73,6 +165,7 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
               },
             },
           },
+          ...schemas,
         },
       },
       // basePath,
@@ -103,7 +196,11 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
   return rawSpec;
 };
 
-const writeToFile = (content: string, filePath: string, overwrite: boolean = true) => {
+const writeToFile = (
+  content: string,
+  filePath: string,
+  overwrite: boolean = true,
+) => {
   try {
     if (content === '') {
       console.log('content is empty' + filePath);
@@ -159,11 +256,15 @@ export const endpointSpec = (
   //   JSON.stringify(rawSpec),
   // );
   let i = 0;
-  let max = 25;
   const docsPath = path.join(__dirname, 'docs');
+
   // delete all files in the docs folder if it exists
   if (fs.existsSync(docsPath)) {
-    fs.rmSync(docsPath, { recursive: true });
+    try {
+      fs.rmSync(docsPath, { recursive: true });
+    } catch (error) {
+      console.log(error);
+    }
   }
   for (const endpoint of endpoints) {
     // console.log(endpoint, 'endpoint');
@@ -180,7 +281,7 @@ export const endpointSpec = (
     let paramDocs = '';
     if (params) {
       // if it has params, replace them with curly braces
-      paramDocs = ' *     parameters:'
+      paramDocs = ' *     parameters:';
       params.forEach((param) => {
         url = url.replace(param, '/{' + param.replace('/:', '') + '}');
         const paramTemp = constructTemplate(paramTemplate, {
@@ -208,9 +309,9 @@ export const endpointSpec = (
       }
       if (method === 'GET') {
         if (paramDocs === '') {
-          paramDocs = ' *     parameters:'
+          paramDocs = ' *     parameters:';
         }
-        paramDocs += constructTemplate(queryTemplate, {}) 
+        paramDocs += constructTemplate(queryTemplate, {});
         const getTemp = constructTemplate(getTemplate, {
           name,
           url,
@@ -234,14 +335,13 @@ export const endpointSpec = (
         });
         compiledDocs += deleteTemp;
       }
+      i++;
     }
     const filePath = path.join(__dirname, 'docs', `${i + name}.hbs`);
     writeToFile(compiledDocs, filePath);
-    i++;
-    if (i === max) {
-      // break;
-    }
   }
+
+  console.log(`Total endpoints: ${i}`);
 
   const rawSpec = getRawSpec(path.join(__dirname, './docs'), '.hbs');
   fs.writeFileSync(path.join(__dirname, 'spec.json'), JSON.stringify(rawSpec));
