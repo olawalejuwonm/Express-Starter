@@ -2,6 +2,10 @@ import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
 
+handlebars.registerHelper('escape', function(variable) {
+  return variable?.replace(/(['"])/g, '\\$1');
+});
+
 export const constructTemplate = (
   filePath: string,
   replacements: {
@@ -23,3 +27,6 @@ export const constructTemplate = (
   const html = template(replacements);
   return html;
 };
+
+export const htmlTemplate = (name: string) =>
+  path.join(__dirname, 'htmls', `${name}.html`);

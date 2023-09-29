@@ -47,23 +47,31 @@ const gernerateDTOSchema = (ALLDTO: any) => {
   for (const name in ALLDTO) {
     const DTO = ALLDTO[name];
     for (const key in DTO as any) {
-      let arrays: string[] = [];
-      let a = new DTO[key]();
-      let array = Object.getOwnPropertyNames(a);
-      // values
-      arrays = [...arrays, ...array];
-      let properties: any = {};
-      arrays.forEach((key) => {
-        properties[key] = {
-          type: 'any',
-          // default: ''
-        };
-      });
+      try {
+        let arrays: string[] = [];
+        let a = new DTO[key]();
+        let array = Object.getOwnPropertyNames(a);
+        // values
+        arrays = [...arrays, ...array];
+        let properties: any = {};
+        arrays.forEach((key) => {
+          properties[key] = {
+            type: 'any',
+            // default: ''
+          };
+        });
 
-      schemas[name?.toUpperCase() + '-' + key] = {
-        type: 'object',
-        properties,
-      };
+        // schemas[name?.toUpperCase() + '-' + key] = {
+        //   type: 'object',
+        //   properties,
+        // };
+        schemas[key] = {
+          type: 'object',
+          properties,
+        };
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
   return schemas;
@@ -98,7 +106,7 @@ function importEsALL(paths: string[]) {
       allFiles[name] = module;
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     // is not a directory
     // allFiles = [importPath];
   }
@@ -112,18 +120,47 @@ console.log(featuresPath, 'featuresPath');
 const dtoPattern = 'dto.ts';
 
 const basePath = `${process.env.BASE_PATH}`;
+const dtoFiles = getFullRoute(featuresPath, dtoPattern);
+
+const importedDTO = importEsALL(dtoFiles);
 
 const getRawSpec = (dir: string, format: string, lookfor?: string) => {
   const fullRoutedirs = getFullRoute(dir, format);
-  const dtoFiles = getFullRoute(featuresPath, dtoPattern);
-
-  const importedDTO = importEsALL(dtoFiles);
-  // console.log(importedDTO, 'importedDTO');
 
   // console.log(importedDTO, 'importedDTO');
   const schemas = gernerateDTOSchema(importedDTO);
   // console.log(schemas, 'schemas');
 
+  const components = {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+    schemas: {
+      GeneralBody: {
+        type: 'object',
+        // additionalProperties: true,
+      },
+      QueryParams: {
+        type: 'object',
+      },
+      ApiResponse: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+          },
+          data: {
+            type: 'object',
+          },
+        },
+      },
+      ...schemas,
+    },
+  };
   const source: Options | undefined = {
     failOnErrors: true, // Whether or not to throw when parsing errors. Defaults to false.
     definition: {
@@ -138,36 +175,7 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
         'multipart/form-data',
         'application/x-www-form-urlencoded',
       ],
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-          },
-        },
-        schemas: {
-          GeneralBody: {
-            type: 'object',
-            // additionalProperties: true,
-          },
-          QueryParams: {
-            type: 'object',
-          },
-          ApiResponse: {
-            type: 'object',
-            properties: {
-              message: {
-                type: 'string',
-              },
-              data: {
-                type: 'object',
-              },
-            },
-          },
-          ...schemas,
-        },
-      },
+      // components,
       // basePath,
       externalDocs: {
         url: '/static/docs/',
@@ -191,6 +199,7 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
   });
 
   sjdocs.paths = pathWithBase;
+  sjdocs.components = components;
 
   const rawSpec = sjdocs;
   return rawSpec;
@@ -242,6 +251,23 @@ const deleteTemplate = path.join(__dirname, 'templates/delete.hbs');
 
 const paramTemplate = path.join(__dirname, 'templates/param.hbs');
 const queryTemplate = path.join(__dirname, 'templates/query.hbs');
+const docGen = (
+  docs: { description: string; method: any; schema: string },
+  method: any,
+) => {
+  if (docs?.description && docs?.method === method) {
+    docs.description = docs.description
+      // .replace(/"/g, '`')
+      .replace(/\n/g, '')
+      .replace(/\s+/g, ' ');
+    docs.description = docs?.description || '';
+    docs.schema = docs?.schema || 'GeneralBody';
+  } else {
+    docs.description = '';
+    docs.schema = 'GeneralBody';
+  }
+  return docs;
+};
 
 export const endpointSpec = (
   endpoints: {
@@ -298,13 +324,16 @@ export const endpointSpec = (
     for (const method of methods) {
       // console.log(method, 'method');
       if (method === 'POST') {
+        console.log(method, basePath + url, name);
+        let docs = importedDTO[name]?.docs?.[url] || {};
+        docs = docGen(docs, method);
         const postTemp = constructTemplate(postTemplate, {
           name,
           url,
           paramDocs,
+          ...docs,
         });
 
-        // console.log(postTemp, 'postTemp');
         compiledDocs += postTemp;
       }
       if (method === 'GET') {
@@ -312,26 +341,35 @@ export const endpointSpec = (
           paramDocs = ' *     parameters:';
         }
         paramDocs += constructTemplate(queryTemplate, {});
+        let docs = importedDTO[name]?.docs?.[url] || {};
+        docs = docGen(docs, method);
         const getTemp = constructTemplate(getTemplate, {
           name,
           url,
           paramDocs,
+          ...docs,
         });
         compiledDocs += getTemp;
       }
       if (method === 'PUT') {
+        let docs = importedDTO[name]?.docs?.[url] || {};
+        docs = docGen(docs, method);
         const putTemp = constructTemplate(putTemplate, {
           name,
           url,
           paramDocs,
+          ...docs,
         });
         compiledDocs += putTemp;
       }
       if (method === 'DELETE') {
+        let docs = importedDTO[name]?.docs?.[url] || {};
+        docs = docGen(docs, method);
         const deleteTemp = constructTemplate(deleteTemplate, {
           name,
           url,
           paramDocs,
+          ...docs,
         });
         compiledDocs += deleteTemp;
       }
