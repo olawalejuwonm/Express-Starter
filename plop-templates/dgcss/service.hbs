@@ -27,7 +27,7 @@ export default class {{fcapitalize name}}Service {
       }
       return {
         success: true,
-        message: '{{fcapitalize name}}s fetched successfully',
+        message: '{{startcase name}}s fetched successfully',
         data: found{{fcapitalize name}}s,
         statusCode: 200,
       };
@@ -50,7 +50,7 @@ export default class {{fcapitalize name}}Service {
       const created{{fcapitalize name}} = await {{fcapitalize name}}Model.create({ ...payload, ...data });
       return {
         success: true,
-        message: '{{fcapitalize name}} created successfully',
+        message: '{{startcase name}} created successfully',
         data: created{{fcapitalize name}},
         statusCode: 201,
       };
@@ -77,7 +77,7 @@ export default class {{fcapitalize name}}Service {
       }
       return {
         success: true,
-        message: '{{fcapitalize name}} fetched successfully',
+        message: '{{startcase name}} fetched successfully',
         data: found{{fcapitalize name}},
         statusCode: 200,
       };
@@ -100,7 +100,7 @@ export default class {{fcapitalize name}}Service {
       // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
       // if (!found{{fcapitalize name}}) {
       //   throw {
-      //     message: '{{fcapitalize name}} not found or access denied',
+      //     message: '{{startcase name}} not found or access denied',
       //     statusCode: 404,
       //   };
       // }
@@ -111,13 +111,13 @@ export default class {{fcapitalize name}}Service {
       );
       if (!updated{{fcapitalize name}}) {
         throw {
-          message: '{{fcapitalize name}} not found or access denied',
+          message: '{{startcase name}} not found or access denied',
           statusCode: 404,
         };
       }
       return {
         success: true,
-        message: '{{fcapitalize name}} updated successfully',
+        message: '{{startcase name}} updated successfully',
         data: updated{{fcapitalize name}},
         statusCode: 200,
       };
@@ -140,7 +140,7 @@ export default class {{fcapitalize name}}Service {
       // });
       // if (!found{{fcapitalize name}}) {
       //   throw {
-      //     message: '{{fcapitalize name}} not found or access denied',
+      //     message: '{{startcase name}} not found or access denied',
       //     statusCode: 404,
       //   };
       // }
@@ -150,13 +150,13 @@ export default class {{fcapitalize name}}Service {
       });
       if (!deleted{{fcapitalize name}}) {
         throw {
-          message: '{{fcapitalize name}} not found or access denied',
+          message: '{{startcase name}} not found or access denied',
           statusCode: 404,
         };
       }
       return {
         success: true,
-        message: '{{fcapitalize name}} deleted successfully',
+        message: '{{startcase name}} deleted successfully',
         data: deleted{{fcapitalize name}},
         statusCode: 204,
       };

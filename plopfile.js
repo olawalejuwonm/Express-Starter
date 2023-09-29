@@ -6,6 +6,12 @@ module.exports = function (plop) {
     return str.charAt(0).toLowerCase() + str.slice(1);
   });
 
+  plop.setHelper('startcase', function (str) {
+    return str.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) {
+      return str.toUpperCase();
+    });
+  });
+
   plop.setGenerator('rcm', {
     prompts: [
       {
