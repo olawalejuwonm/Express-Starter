@@ -3,21 +3,25 @@ import {
   ForgotPasswordDto,
   LoginDto,
   RegisterDto,
+  RequestPhoneVerificationDto,
   ResetPasswordDto,
-  VerifyEmailDto,
   VerifyEmailResendDto,
+  VerifyToken,
 } from './dto';
-import User, { AllUserType, UserType } from '../../models/userModel';
+import { AllUserType, UserType } from '../../models/userModel';
 import { serviceResponseType } from '../../utilities/response';
-import { genToken, verifyToken } from '../../utilities/token';
-import AuthTemplates from '../../utilities/templates/auth';
-import { ProfileModel } from '../../models';
-import mailService from '../../services/mailService';
-
+import { genToken, saveToken, verifyToken } from '../../utilities/token';
+import AuthTemplates, {
+  resetPasswordTemplate,
+} from '../../utilities/templates/auth';
+import { ProfileModel, UserModel } from '../../models';
+import axios from 'axios';
+import { validateDTO } from '../../middlewares/validate';
+import { TokenType } from '../../models/token';
 export default class AuthService {
   static async login(data: LoginDto): Promise<serviceResponseType> {
     try {
-      const { user, error } = await User.authenticate()(
+      const { user, error } = await UserModel.authenticate()(
         data.username,
         data.password,
       );
@@ -36,14 +40,16 @@ export default class AuthService {
           data: user,
         };
       }
-      if (user.email && !user.emailVerified) {
-        return {
-          success: false,
-          message: 'Email not verified',
-          data: user,
-        };
-      }
+      // if (user.email && !user.emailVerified) {
+      //   return {
+      //     success: false,
+      //     message: 'Email not verified',
+      //     data: user,
+      //   };
+      // }
       const token = await theUser.generateJWT();
+      theUser.lastLogin = new Date();
+      theUser.save();
       return {
         success: true,
         message: 'Login successful',
@@ -53,7 +59,7 @@ export default class AuthService {
       // return
       return {
         success: false,
-        message: error instanceof Error ? error.message : '',
+        message: error.message,
         data: error,
       };
     }
@@ -70,102 +76,43 @@ export default class AuthService {
         // createdBy: user._id,
       });
 
-      const user = await User.register(
-        new User({
+      // Check if user with phone exists
+      const userWithPhone = await UserModel.findOne({
+        phone: data.phone,
+      });
+
+      if (userWithPhone) {
+        return {
+          success: false,
+          message: 'A user with this phone number already exists',
+          data: null,
+        };
+      }
+
+      const user = await UserModel.register(
+        new UserModel({
+          ...data,
           ...(profile.toObject ? profile.toObject() : profile),
+          _id: profile._id,
           profile: profile._id,
-          status: 'active',
-          emailVerified: true,
           email,
         }),
         password,
       );
 
-      profile.createdBy = user._id.toString();
+      profile.createdBy = user._id;
       await profile.save();
 
-      console.log('user', user._id);
-
-      await mailService(
-        'Welcome to the team',
-        email,
-        // welcome message with email and password
-        `<p>Hi ${profile.firstName},</p>
-      <p>Welcome to the team.</p>
-      <p>Here are your login details:</p>
-      <p>Email: ${email}</p>
-      <p>Password: ${password}</p>
-      <p>Kindly change your password after logging in.</p>
-      <p>Thank you.</p>
-      <p>Regards,</p>
-      <p>Team</p>
-      `,
-      );
+      console.log('user', user._id, profile);
+      // if (profile.type === 'artisan')
+      // await welcomeTemplate(user.email, profile);
 
       return {
         success: true,
         message: 'User created successfully',
-        data: user,
+        data: { user, token: await user.generateJWT() },
       };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
-    }
-  }
-
-  static async registerStaff(data: RegisterDto): Promise<serviceResponseType> {
-    try {
-      const { email, password } = data;
-
-      const profile = await ProfileModel.create({
-        ...data,
-        type: 'staff',
-        // ...user.toObject(),
-        // _id: user._id,
-        // createdBy: user._id,
-      });
-
-      const user = await User.register(
-        new User({
-          ...(profile.toObject ? profile.toObject() : profile),
-          profile: profile._id,
-          status: 'active',
-          emailVerified: true,
-          email,
-        }),
-        password,
-      );
-
-      profile.createdBy = user._id.toString();
-      await profile.save();
-
-      console.log('user', user._id);
-
-      await mailService(
-        'Welcome to the team',
-        email,
-        // welcome message with email and password
-        `<p>Hi ${profile.firstName},</p>
-      <p>Welcome to the team.</p>
-      <p>Here are your login details:</p>
-      <p>Email: ${email}</p>
-      <p>Password: ${password}</p>
-      <p>Kindly change your password after logging in.</p>
-      <p>Thank you.</p>
-      <p>Regards,</p>
-      <p>Team</p>
-      `,
-      );
-
-      return {
-        success: true,
-        message: 'Staff created successfully',
-        data: user,
-      };
-    } catch (error: any) {
+    } catch (error) {
       return {
         success: false,
         message: error.message,
@@ -215,7 +162,7 @@ export default class AuthService {
   ): Promise<serviceResponseType> {
     const { token, newPassword } = body;
     try {
-      const emailVerify = await verifyToken(token, 'reset-password');
+      const emailVerify = await verifyToken(token, TokenType.ResetPassword);
 
       if (!emailVerify.valid) {
         return {
@@ -225,7 +172,7 @@ export default class AuthService {
         };
       }
       const { userId } = emailVerify;
-      const user = (await User.findById(userId).populate(
+      const user = (await UserModel.findById(userId).populate(
         'profile',
       )) as AllUserType | null;
       if (!user) {
@@ -247,7 +194,7 @@ export default class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : '',
+        message: error.message,
         data: error,
       };
     }
@@ -258,9 +205,9 @@ export default class AuthService {
   ): Promise<serviceResponseType> {
     const { email } = body;
     try {
-      const user = await User.findOne({
+      const user = await UserModel.findOne({
         email,
-      }).populate('profile');
+      }).populate('profile profile.createdBy');
 
       if (!user) {
         return {
@@ -273,26 +220,27 @@ export default class AuthService {
 
       const theToken = await genToken(user, 'User', 'reset-password');
 
-      await AuthTemplates.resetPasswordTemplate(user, theToken);
+      await resetPasswordTemplate(user, theToken);
       return {
         success: true,
         message:
           'If an account with this email exists, an email has been sent to you.',
-        data: user,
+        data: null,
       };
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : '',
+        message: error.message,
         data: error,
       };
     }
   }
-  static async verifyEmailAccount(body: VerifyEmailDto) {
+
+  static async verifyEmailAccount(body: VerifyToken) {
     try {
       const { token } = body;
 
-      const theToken = await verifyToken(token, 'verify-email');
+      const theToken = await verifyToken(token, TokenType.VerifyEmail);
       if (!theToken.valid) {
         // return response(res, 401, theToken.message);
         return {
@@ -302,9 +250,9 @@ export default class AuthService {
         };
       }
       const { userId } = theToken;
-      const user = await User.findById(userId);
+      const user = await UserModel.findById(userId);
       // const referral = await createReferral(userId, user.referredBy);
-      const theUser = await User.findByIdAndUpdate(
+      const theUser = await UserModel.findByIdAndUpdate(
         userId,
         {
           // referralCode,
@@ -323,7 +271,7 @@ export default class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : '',
+        message: error.message,
         data: error,
       };
     }
@@ -334,7 +282,7 @@ export default class AuthService {
   ): Promise<serviceResponseType> {
     const { email } = body;
     try {
-      const user = await User.findOne({
+      const user = await UserModel.findOne({
         email,
       }).populate('profile');
       if (!user) {
@@ -342,7 +290,7 @@ export default class AuthService {
           success: false,
           message:
             'If an account with this email exists, an email has been sent to you.',
-          data: user,
+          data: null,
         };
       }
       if (user.emailVerified) {
@@ -358,12 +306,122 @@ export default class AuthService {
         success: true,
         message:
           'If an account with this email exists, an email has been sent to you.',
-        data: user,
+        data: null,
       };
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : '',
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async sendSMS(phone: string, otpCode: string) {
+    try {
+      // console.log(
+      //   process.env.TEXTNG_SMS_API_KEY,
+      //   process.env.TEXTNG_SENDER_ID,
+      //   process.env.TEXTNG_route,
+      // );
+      const message = `Your one time password is ${otpCode} OTP will expire in 10 minutes`;
+      const apiUrl = `https://api.ng.termii.com/api/sms/send`;
+      const response = await axios.post(apiUrl, {
+        api_key: process.env.TERMII_API_KEY,
+        to: phone,
+        from: 'N-Alert',
+        sms: message,
+        type: 'plain',
+        channel: 'dnd',
+      });
+
+      console.log(response.data, 'response.data');
+      return response.data;
+    } catch (error) {
+      console.error(error, 'error');
+      throw error;
+    }
+  }
+
+  static async sendPhoneVerification(
+    data: RequestPhoneVerificationDto,
+  ): Promise<serviceResponseType> {
+    try {
+      validateDTO(RequestPhoneVerificationDto, data);
+      const user = await UserModel.findOne({
+        phone: data.phone,
+      });
+      if (!user) {
+        return {
+          success: false,
+          message: 'No user with this phone number',
+          data: null,
+        };
+      }
+      const theToken: string = await saveToken(
+        4,
+        data.phone,
+        TokenType.VerifyPhone,
+      );
+      const sms = await this.sendSMS(data.phone, theToken);
+      // await AuthTemplates.verifyEmailTemplate(user, theToken);
+      return {
+        success: true,
+        message:
+          'Please enter the code sent to your phone number to verify your account',
+        data: sms,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async verifyPhone(token: string) {
+    try {
+      const theToken = await verifyToken(token, TokenType.VerifyPhone);
+
+      if (!theToken.valid) {
+        return {
+          success: false,
+          message: theToken.message,
+          data: theToken,
+        };
+      }
+
+      const user = await UserModel.findOneAndUpdate(
+        {
+          phone: theToken?.token?.payload,
+        },
+        {
+          phoneVerified: true,
+        },
+        {
+          new: true,
+        },
+      ).populate('profile');
+
+      if (!user) {
+        return {
+          success: false,
+          message: 'User not found',
+          data: null,
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Phone verified successfully',
+        data: { user, token: await user?.generateJWT() },
+        statusCode: 200,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
         data: error,
       };
     }

@@ -17,6 +17,18 @@ export const serviceError = (error: any) => {
   };
 };
 
+export const serviceSuccess = (
+  data: any = null,
+  message: string = 'Sucess',
+) => {
+  // console.error(error);
+  return {
+    success: true,
+    message: message,
+    data: data,
+  };
+};
+
 export default <T = any>(
   res: Response,
   status: number,

@@ -4,7 +4,6 @@ import response from '../../utilities/response';
 import { find, findOne } from '../../utilities/query';
 import { uploadTheFile } from '../../services/fileUpload';
 import Settings from '../../models/settingsModel';
-import User from '../../models/userModel';
 import { authenticator } from '../../middlewares/authentication';
 import { NextFunction, Request, Response } from 'express';
 import { validForm } from '../../middlewares/validators';
@@ -15,7 +14,7 @@ import {
   mongooseDocsOutputHTML,
 } from '../../mongoose-docs/src';
 import axios from 'axios';
-import { FileModel } from '../../models';
+import { FileModel, UserModel } from '../../models';
 let models: any = {};
 
 export async function importAllModels(
@@ -64,7 +63,7 @@ try {
   console.log(err, 'error in generating docs');
 }
 
-const allUserTypes = (User.schema.path('type') as any).enumValues;
+const allUserTypes = (UserModel.schema.path('type') as any).enumValues;
 const dataTypes: any = Settings.schema.path('dataTypes');
 
 let typeList = [...(dataTypes?.defaultValue() || [])];

@@ -1,13 +1,6 @@
-import {
-  prop,
-  getModelForClass,
-  pre,
-  modelOptions,
-  plugin,
-  Ref,
-} from '@typegoose/typegoose';
+import { prop, pre, modelOptions, plugin, Ref } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 import idValidator from 'mongoose-id-validator2';
-
 
 export class Education {
   @prop({ required: true })
@@ -49,11 +42,8 @@ export class Experience {
   options: { automaticName: true },
 })
 export class Profile {
-  @prop({ ref: 'User', immutable: true })
-  createdBy!: string;
-
-  @prop({ required: true, immutable: true })
-  type!: string;
+  @prop({ ref: 'User' })
+  createdBy!: Types.ObjectId;
 
   @prop({ required: true })
   firstName!: string;
@@ -62,16 +52,16 @@ export class Profile {
   lastName!: string;
 
   @prop()
-  email?: string;
-
-  @prop()
   avatar?: string;
 
   @prop()
-  phone?: string;
+  address?: string;
 
   @prop()
-  address?: string;
+  landmark?: string;
+
+  @prop()
+  agreedToTerms?: boolean;
 
   @prop()
   lgaOfOrigin?: string;
@@ -97,13 +87,21 @@ export class Profile {
   @prop()
   dateOfBirth?: Date;
 
-
-
   @prop({ type: () => [Education] })
   education?: Education[];
 
   @prop({ type: () => [Experience] })
   experience?: Experience[];
-}
 
-// export const ProfileModel = getModelForClass(Profile);
+  @prop()
+  bio?: string;
+
+  @prop()
+  bankName?: string;
+
+  @prop()
+  accountNumber?: string;
+
+  @prop()
+  accountName?: string;
+}

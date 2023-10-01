@@ -1,5 +1,6 @@
 import { DocumentType } from '@typegoose/typegoose';
-import UserModel, { UserType } from './models/userModel';
+import { User, UserType } from './models/userModel';
+import { Profile } from './models/profileModel';
 
 declare global {
   namespace NodeJS {
@@ -15,7 +16,9 @@ declare global {
 
   namespace Express {
     interface Request {
-      user: UserType;
+      user: DocumentType<User> & {
+        profile: Profile;
+      };
     }
   }
 

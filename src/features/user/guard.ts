@@ -30,7 +30,9 @@ export const canFetchUser = async (req: Request): Promise<PermType> => {
     return {
       auth: true,
       message: 'Can fetch User',
-      query: {},
+      query: {
+        _id: req.user._id,
+      },
     };
   } catch (error) {
     return {
@@ -41,22 +43,70 @@ export const canFetchUser = async (req: Request): Promise<PermType> => {
   }
 };
 
-export const canUpdateUser: GuardFunction<
-  any,
-  any,
-  {
-    companyId: string;
-    id: string;
-  }
-> = async (req) => {
+export const canFetchProfile = async (req: Request): Promise<PermType> => {
   try {
-  
+    await authenticateCheck(req);
+    return {
+      auth: true,
+      message: 'Can fetch User',
+      query: {
+        _id: req.user._id,
+      },
+    };
+  } catch (error) {
+    return {
+      auth: false,
+      message: error instanceof Error ? error.message : "Can't fetch User",
+      query: {},
+    };
+  }
+};
+export const canFetchProfiles = async (req: Request): Promise<PermType> => {
+  try {
+    await checkUserTypesService(req, ['super']);
+    return {
+      auth: true,
+      message: 'Can fetch User',
+      query: {
+      },
+    };
+  } catch (error) {
+    return {
+      auth: false,
+      message: error instanceof Error ? error.message : "Can't fetch User",
+      query: {},
+    };
+  }
+};
+export const canUpdateProfile: GuardFunction = async (req) => {
+  try {
+    await authenticateCheck(req);
+    return {
+      auth: true,
+      message: 'Can update User',
+      query: {
+        _id: req.user._id,
+      },
+    };
+  } catch (error: any) {
+    return {
+      auth: false,
+      message: error.message,
+      query: {},
+    };
+  }
+};
+
+export const canUpdateUserStatus: GuardFunction = async (req) => {
+  try {
+    await checkUserTypesService(req, ['super']);
+
     return {
       auth: true,
       message: 'Can update User',
       query: {},
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       auth: false,
       message: error.message,

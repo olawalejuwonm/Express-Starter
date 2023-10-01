@@ -1,61 +1,50 @@
-import mongoose, { Document, Model } from 'mongoose';
-import { InferSchemaType } from 'mongoose';
+import {
+  prop,
+  getModelForClass,
+  Ref,
+  modelOptions,
+} from '@typegoose/typegoose';
+import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 
-const { Schema } = mongoose;
-const tokenSchema = new Schema(
-  {
-    token: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      //TODO: Turn to typegoose and make enum
-      enum: ['verify-email', 'reset-password', 'verify-phone'],
-      required: true,
-    },
-    userType: {
-      type: String,
-      enum: ['User', 'Admin'],
-      required: true,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      refPath: 'userType',
-    },
-    expired: {
-      type: Boolean,
-      default: false,
-    },
-    expireAt: {
-      type: Date,
-      // default: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes
-    },
-  },
-  {
+export enum TokenType {
+  VerifyEmail = 'verify-email',
+  ResetPassword = 'reset-password',
+  VerifyPhone = 'verify-phone',
+  AccountNumber = 'account-number',
+}
+
+enum UserType {
+  User = 'User',
+  Admin = 'Admin',
+}
+
+@modelOptions({
+  schemaOptions: {
     timestamps: true,
   },
-);
+})
+export class Token {
+  @prop({ required: true })
+  token!: string;
 
-// expire after 10 minutes
-// tokenSchema.index(
-//   {
-//     expireAt: 1, // 1 means ascending
-//   },
-//   {
-//     expireAfterSeconds: 0, // 0 means never expire
-//   },
-// );
+  @prop({ required: true, enum: TokenType })
+  type!: TokenType;
 
-export type IToken = InferSchemaType<typeof tokenSchema>;
+  @prop({ required: true, enum: UserType })
+  userType!: UserType;
 
-// Use `mongoose.Model<IToken>` instead of `<Model<IToken>>`
-export const Token: Model<IToken> = mongoose.model<IToken>(
-  'Token',
-  tokenSchema,
-);
+  @prop()
+  payload?: string;
 
-// Export the tokenSchema as well
-export { tokenSchema };
+  @prop({ refPath: 'userType' })
+  user?: Ref<any>;
 
-export default Token;
+  @prop({ default: false })
+  expired?: boolean;
+
+  @prop({ expires: 600 })
+  expireAt?: Date;
+
+  createdAt!: Date;
+  updatedAt!: Date;
+}

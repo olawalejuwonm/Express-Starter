@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import {
+  authPaths,
   canCreateAuth,
   canDeleteAuth,
   canFetchAuth,
@@ -15,55 +16,28 @@ import {
   LoginDto,
   RegisterDto,
   ResetPasswordDto,
-  VerifyEmailDto,
   VerifyEmailResendDto,
+  VerifyToken,
 } from './dto';
 import { authenticate } from '../../middlewares/authentication';
+import { tokenValid } from '../../utilities/token';
 const router = express.Router();
-const AuthPathName = '/Auth';
-/**
- * @openapi
- * 
- * /Auth:
- *   post:
- *     summary: Create a new Auth
- *     tags:
- *       - Auths
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
- *     responses:
- *       201:
- *         description: Auth created successfully
-//  *         content:
-//  *           application/json:
- */
-router.post('/login', async (req: Request, res: Response) => {
-  const body = validateDTO(LoginDto, req.body);
+
+
+router.post(authPaths.login, async (req: Request, res: Response) => {
+  const body: LoginDto = validateDTO(LoginDto, req.body);
   const data = throwIfError(await AuthService.login(body));
   return response(res, data.statusCode, data.message, data.data);
 });
 
-/**
- *change-password
- verify-email-account
- /reset-password
- /request-email-verification
- /request-reset-password
- *
- */
-router.post('/register', async (req: Request, res: Response) => {
-  const body = validateDTO(RegisterDto, req.body);
+router.post(authPaths.register, async (req: Request, res: Response) => {
+  const body: RegisterDto = validateDTO(RegisterDto, req.body);
   const data = throwIfError(await AuthService.register(body));
   return response(res, data.statusCode, data.message, data.data);
 });
 
 router.post(
-  '/change-password',
+  authPaths.changePassword,
   authenticate,
   async (req: Request, res: Response) => {
     const body = validateDTO(ChangePasswordDto, req.body);
@@ -72,14 +46,17 @@ router.post(
   },
 );
 
-router.post('/verify-email-account', async (req: Request, res: Response) => {
-  const body = validateDTO(VerifyEmailDto, req.body);
-  const data = throwIfError(await AuthService.verifyEmailAccount(body));
-  return response(res, 201, data.message, data.data);
-});
+router.post(
+  authPaths.verifyEmailAccount,
+  async (req: Request, res: Response) => {
+    const body = validateDTO(VerifyToken, req.body);
+    const data = throwIfError(await AuthService.verifyEmailAccount(body));
+    return response(res, 201, data.message, data.data);
+  },
+);
 
 router.post(
-  '/request-email-verification',
+  authPaths.requestEmailVerification,
   async (req: Request, res: Response) => {
     const body = validateDTO(VerifyEmailResendDto, req.body);
     const data = throwIfError(await AuthService.sendVerificationEmail(body));
@@ -87,15 +64,42 @@ router.post(
   },
 );
 
-router.post('/request-reset-password', async (req: Request, res: Response) => {
-  const body = validateDTO(ForgotPasswordDto, req.body);
-  const data = throwIfError(await AuthService.requestResetPassword(body));
+router.post(
+  authPaths.requestPhoneVerification,
+  async (req: Request, res: Response) => {
+    const data = throwIfError(
+      await AuthService.sendPhoneVerification(req.body),
+    );
+    return response(res, 201, data.message, data.data);
+  },
+);
+
+router.post(authPaths.verifyPhone, async (req: Request, res: Response) => {
+  const body = validateDTO(VerifyToken, req.body);
+  const token = body.token;
+  const data = throwIfError(await AuthService.verifyPhone(token));
   return response(res, 201, data.message, data.data);
 });
 
-router.post('/reset-password', async (req: Request, res: Response) => {
+router.post(
+  authPaths.requestResetPassword,
+  async (req: Request, res: Response) => {
+    const body = validateDTO(ForgotPasswordDto, req.body);
+    const data = throwIfError(await AuthService.requestResetPassword(body));
+    return response(res, 201, data.message, data.data);
+  },
+);
+
+router.post(authPaths.resetPassword, async (req: Request, res: Response) => {
   const body = validateDTO(ResetPasswordDto, req.body);
   const data = throwIfError(await AuthService.resetPassword(body));
   return response(res, 201, data.message, data.data);
 });
+
+router.get(authPaths.tokenValidity, async (req: Request, res: Response) => {
+  const query = validateDTO(VerifyToken, req.query);
+  const data = throwIfError(await tokenValid(query.token));
+  return response(res, data.statusCode, data.message, data.data);
+});
+
 export default router;

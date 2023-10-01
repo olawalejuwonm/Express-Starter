@@ -1,10 +1,9 @@
 import {
   prop,
-  getModelForClass,
   Ref,
   DocumentType,
   plugin,
-  ReturnModelType,
+  modelOptions,
 } from '@typegoose/typegoose';
 import passportLocalMongoose from 'passport-local-mongoose';
 import idValidator from 'mongoose-id-validator2';
@@ -19,21 +18,18 @@ import { Profile } from './profileModel';
 
 const options = {
   errorMessages: {
-    MissingPasswordError: 'Incorrect details. Kindly double check',
+    MissingPasswordError: 'Incorrect Email or Password, Please try again',
     AttemptTooSoonError: 'Account is currently locked. Try again later',
     TooManyAttemptsError:
       'Account locked due to too many failed login attempts',
     NoSaltValueStoredError:
       "You've registered using other login method. Please login with that method",
-    IncorrectPasswordError: 'Incorrect details. Kindly double check',
-    IncorrectUsernameError: 'Incorrect details. Kindly double check',
-    MissingUsernameError: 'Incorrect details. Kindly double check',
-    UserExistsError: 'A user with this credential already exists',
+    IncorrectPasswordError: 'Incorrect Email or Password, Please try again',
+    IncorrectUsernameError: 'Incorrect Email or Password, Please try again',
+    MissingUsernameError: 'Incorrect Email or Password, Please try again',
+    UserExistsError: 'A user with this email already exists',
   },
 };
-
-export type UserModelType = typeof UserModel &
-  PassportLocalModel<DocumentType<User>>;
 
 // export type UserType = typeof UserModel;
 
@@ -43,6 +39,7 @@ export type UserModelType = typeof UserModel &
 
 export enum UserTypes {
   INDIVIDUAL = 'individual',
+  ARTISAN = 'artisan',
   SUPER = 'super',
   ADMIN = 'admin',
   EMPLOYER = 'employer',
@@ -52,6 +49,7 @@ export enum Status {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   SUSPENDED = 'suspended',
+  REJECTED = 'rejected',
 }
 
 @plugin(idValidator)
@@ -62,10 +60,18 @@ export enum Status {
   lastLoginField: 'lastLogin',
   usernameLowerCase: true,
 })
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+    // toJSON: {
+    //   virtuals: true,
+    //   getters: true,
+    // },
+  },
+})
 export class User {
   @prop({
     unique: true,
-    immutable: true,
     index: true,
     sparse: true,
     required: true,
@@ -74,23 +80,28 @@ export class User {
   })
   email!: string;
 
-  @prop({ required: true, immutable: true })
+  @prop({ required: true, unique: true })
   phone!: string;
 
-  @prop({ autopopulate: true, ref: 'Profile', required: true })
-  profile: string;
+  @prop({ ref: () => Profile, required: true })
+  profile: Ref<Profile>;
 
-  @prop()
-  lastLogin?: string;
+  @prop({ immutable: true })
+  lastLogin?: Date;
 
-  @prop({ default: false, immutable: true })
+  @prop({ immutable: true })
+  lastActive?: Date;
+
+  @prop({ default: false })
   emailVerified!: boolean;
+
+  @prop({ default: false })
+  phoneVerified!: boolean;
 
   @prop({
     enum: UserTypes,
     immutable: true,
     required: true,
-    source: 'body',
   })
   type!: UserTypes;
 
@@ -101,8 +112,8 @@ export class User {
     enum: Status,
     immutable: false,
     default: function () {
-      const mythis = this as any;
-      if (mythis.type === 'student') {
+      const mythis = this as User;
+      if (mythis.type === 'individual') {
         return 'active';
       }
       return 'inactive';
@@ -110,10 +121,10 @@ export class User {
   })
   status!: Status;
 
-  @prop({ ref: 'Role' })
+  @prop({ ref: 'Role', immutable: true })
   roles?: Ref<'Role'>[];
 
-  @prop({ ref: 'Permission' })
+  @prop({ ref: 'Permission', immutable: true })
   permissions?: Ref<'Permission'>[];
 
   public async generateJWT(this: DocumentType<User>): Promise<string> {
@@ -144,21 +155,6 @@ export class User {
   }
 }
 
-const UserModel = getModelForClass(User, {
-  schemaOptions: {
-    timestamps: true,
-    // toJSON: {
-    //   virtuals: true,
-    //   getters: true,
-    // },
-  },
-});
-
 export type UserType = DocumentType<User>;
 // interface IUserType extends DocumentType<User>, Omit<PassportLocalDocument, mongoose.Doc>,
 export type AllUserType = PassportLocalDocument & DocumentType<User>;
-
-// export type UserType =
-//   | (PassportLocalDocument & SoftDeleteInterface & DocumentType<User>)
-//   | DocumentType<User>;
-export default <UserModelType>UserModel;

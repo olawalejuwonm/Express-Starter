@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
-import User, { UserType, UserTypes } from '../models/userModel';
+import { UserType, UserTypes } from '../models/userModel';
 import { decodeJWT } from '../utilities/jwt';
 import response from '../utilities/response';
 import Permission from '../models/permissionModel';
 import Role from '../models/role.model';
 import { AuthQuery } from '../utilities/permission';
-import axios from 'axios';
+import { isDocument } from '@typegoose/typegoose';
+import { UserModel } from '../models';
 
 // TODO: Write intrface
 // Make envs in a single variable
@@ -52,14 +53,23 @@ export const authenticator: any = async (
               message: 'Invalid token Decoded',
             };
           }
-          const user = await User.findById(decoded.id);
+          const user = await UserModel.findById(decoded.id).populate('profile');
           if (!user) {
             return {
               success: false,
               message: 'Invalid token',
             };
           }
-          req.user = user;
+          if (isDocument(user['profile'])) {
+            req.user = user as any;
+          } else {
+            throw new Error('Profile not found');
+          }
+          user.profile.firstName;
+
+
+          user.lastActive = new Date();
+          user.save();
           console.info(
             'User authenticated',
             user?._id,
@@ -223,9 +233,7 @@ export const checkUserTypesService = async (
       message: 'User is of the right type',
     };
   }
-  throw new Error(
-    `Permission denied for this user: ${req.user.type}`,
-  );
+  throw new Error(`Permission denied for this user: ${req.user.type}`);
 };
 
 export const checkPermission = (slug: any) => {

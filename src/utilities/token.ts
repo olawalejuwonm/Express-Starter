@@ -1,12 +1,15 @@
-import Token from '../models/token';
+import { TokenModel } from '../models';
+import { Token, TokenType } from '../models/token';
+import { UserType } from '../models/userModel';
 import { createRandomNumbers, createHex } from './index';
+import { serviceError, serviceResponseType, serviceSuccess } from './response';
 
 export const genToken = async (
-  user: { _id: any },
+  user: UserType,
   userType: string,
   purpose: string,
 ) => {
-  await Token.updateMany(
+  await TokenModel.updateMany(
     {
       user: user._id,
       type: purpose,
@@ -17,10 +20,40 @@ export const genToken = async (
       },
     },
   );
-  const token = await Token.create({
+  const token = await TokenModel.create({
     user: user._id,
-    token: createRandomNumbers(5),
+    token: createRandomNumbers(4),
     type: purpose,
+    userType,
+  });
+  token.expireAt = new Date(token?.createdAt?.getTime() + 30 * 60 * 1000);
+  token.save();
+  console.log('Token created: ', token, 'token');
+  return token.token;
+};
+
+export const saveToken = async (
+  tokenLength: number,
+  payload: string,
+  purpose: TokenType,
+  userType: string = 'User',
+) => {
+  await TokenModel.updateMany(
+    {
+      payload,
+      type: purpose,
+      userType,
+    },
+    {
+      $set: {
+        expired: true,
+      },
+    },
+  );
+  const token = await TokenModel.create({
+    token: createRandomNumbers(tokenLength),
+    type: purpose,
+    payload,
     userType,
   });
   token.expireAt = new Date(token.createdAt.getTime() + 30 * 60 * 1000);
@@ -31,29 +64,47 @@ export const genToken = async (
 
 export const verifyToken = async (
   token: any,
-  purpose: string,
+  purpose: TokenType,
 ): Promise<{
   valid: boolean;
   userId?: any;
   message: string;
+  token?: Token;
 }> => {
-  const tokenData = await Token.findOne({ token, type: purpose });
+  const tokenData = await TokenModel.findOne({ token, type: purpose });
   let tokenExpired = false;
-  // if (
-  //   tokenData &&
-  //   tokenData.expireAt &&
-  //   Date.now() >= tokenData.expireAt.getTime()
-  // ) {
-  //   tokenExpired = true;
-  // }
   if (!tokenData || tokenData.expired || tokenExpired) {
     return {
       valid: false,
       message: 'This token is invalid or has expired',
     };
   }
-  await Token.deleteMany({ user: tokenData.user, type: purpose });
-  return { valid: true, userId: tokenData.user, message: 'Token verified' };
+  await TokenModel.deleteMany({ user: tokenData.user, type: purpose });
+  console.log('Token verified: ', tokenData, 'token');
+  return {
+    token: tokenData,
+    valid: true,
+    userId: tokenData.user,
+    message: 'Token verified',
+  };
+};
+
+export const tokenValid = async (
+  token: string,
+): Promise<serviceResponseType> => {
+  try {
+    const tokenData = await TokenModel.findOne({ token });
+    if (!tokenData || tokenData.expired) {
+      throw new Error('Invalid Token');
+    }
+    // token expires in 10 minutes
+    if (tokenData?.createdAt?.getTime() + 10 * 60 * 1000 <= Date.now()) {
+      throw new Error('Invalid Token');
+    }
+    return serviceSuccess(tokenData, 'Token Valid');
+  } catch (error) {
+    return serviceError(error);
+  }
 };
 
 export default {

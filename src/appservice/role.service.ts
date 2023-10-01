@@ -4,8 +4,8 @@ import { matched, validForm } from '../middlewares/validators';
 import { Request, Response, NextFunction } from 'express';
 import Role from '../models/role.model';
 import Permission from '../utilities/permission';
-import User from '../models/userModel';
 import permissionModel from '../models/permissionModel';
+import { UserModel } from '../models';
 
 export default class RoleService {
   /**
@@ -121,7 +121,7 @@ export default class RoleService {
       if (!foundRole) {
         throw new Error('Role not found or access denied');
       }
-      const foundUser = await User.findOne(userQuery);
+      const foundUser = await UserModel.findOne(userQuery);
       if (!foundUser) {
         throw new Error('User not found or access denied');
       }
@@ -192,7 +192,7 @@ export default class RoleService {
       if (!foundRole) {
         throw new Error('Role not found or access denied');
       }
-      const foundUser = User.findOneAndUpdate(
+      const foundUser = UserModel.findOneAndUpdate(
         userQuery,
         {
           $pull: {
@@ -273,7 +273,7 @@ export default class RoleService {
           $in: permissions,
         },
       });
-      const foundUser = await User.findOneAndUpdate(
+      const foundUser = await UserModel.findOneAndUpdate(
         userquery,
         {
           $push: {
@@ -314,7 +314,7 @@ export default class RoleService {
           $in: permissions,
         },
       });
-      const foundUser = await User.findOneAndUpdate(
+      const foundUser = await UserModel.findOneAndUpdate(
         userquery,
         {
           $pull: {

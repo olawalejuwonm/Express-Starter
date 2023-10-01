@@ -4,11 +4,12 @@ import { matched, validForm } from '../middlewares/validators';
 import { Request, Response, NextFunction } from 'express';
 import Notification, { NotificationType } from '../models/notification.model';
 import Permission from '../utilities/permission';
-import User, { UserType } from '../models/userModel';
+import { UserType } from '../models/userModel';
 import permissionModel from '../models/permissionModel';
 import { Novu } from '@novu/node';
 import { Document, Types } from 'mongoose';
 import { Profile } from '../models/profileModel';
+import { UserModel } from '../models';
 
 export default class NotificationService {
   private static novu = new Novu(process.env.NOVU_API_KEY as string);
@@ -62,13 +63,13 @@ export default class NotificationService {
     try {
       let users: Types.ObjectId[] = [];
       if (sendTo === 'user') {
-        const user = await User.find({ _id: id }).select('_id');
+        const user = await UserModel.find({ _id: id }).select('_id');
         users = user.map((u) => u._id);
       } else if (sendTo === 'college') {
-        const user = await User.find({ colleges: id }).select('_id');
+        const user = await UserModel.find({ colleges: id }).select('_id');
         users = user.map((u) => u._id);
       } else if (sendTo === 'company') {
-        const user = await User.find({ companies: id }).select('_id');
+        const user = await UserModel.find({ companies: id }).select('_id');
         users = user.map((u) => u._id);
       }
 
@@ -117,7 +118,7 @@ export default class NotificationService {
       const subscribed = await this.novu.subscribers.identify(
         userId as unknown as string,
         {
-          email: userDetails.email,
+          email: (userDetails?.createdBy as unknown as UserType)?.email,
           firstName: userDetails.firstName,
           lastName: userDetails.lastName,
           // phone: userDetails.phone,
