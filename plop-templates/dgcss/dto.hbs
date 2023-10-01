@@ -1,10 +1,25 @@
 import { IsOptional } from 'class-validator';
 import { {{fcapitalize name}} } from './schema';
+import { IDocs} from '../../utilities/templates/types';
 
-export class Create{{fcapitalize name}}Dto implements {{fcapitalize name}} {
-// export class Create{{fcapitalize name}}Dto implements Partial<{{fcapitalize name}}> {
+
+const doc: IDocs = {};
+
+
+export class Create{{fcapitalize name}}Dto implements Omit<{{fcapitalize name}}, 'createdBy'> {
 }
-export class Update{{fcapitalize name}}Dto implements Partial<{{fcapitalize name}}> {
-//export class Update{{fcapitalize name}}Dto implements Partial<{{fcapitalize name}}> {
+
+doc["/"] = {
+  POST: {
+    schema: {{fcapitalize name}}Dto.name,
+  },
+};
+export class Update{{fcapitalize name}}Dto implements Omit<Create{{fcapitalize name}}Dto, ''> {
 
 }
+
+doc["/"] = {
+  PUT: {
+    schema: {{fcapitalize name}}Dto.name,
+  },
+};

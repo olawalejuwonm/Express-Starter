@@ -5,6 +5,10 @@ import response, {
   throwIfError,
   throwPermIfError,
 } from '../../utilities/response';
+import { validateDTO } from '../../middlewares/validate';
+import { Update{{fcapitalize name}}Dto } from './dto';
+
+
 const router = express.Router();
 
 router.post('/', async (req: Request, res: Response) => {
@@ -42,9 +46,11 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 
 router.put('/:id', async (req: Request, res: Response) => {
+  const body = validateDTO(Update{{fcapitalize name}}Dto, payload);
+
   const perm = throwPermIfError(await canUpdate{{fcapitalize name}}(req, false));
   const content = throwIfError(
-    await {{fcapitalize name}}Service.updateOne({ _id: req.params.id, ...perm.query }, req.body),
+    await {{fcapitalize name}}Service.updateOne({ _id: req.params.id, ...perm.query }, body),
   );
   return response(res, content.statusCode, content.message, content.data);
 });

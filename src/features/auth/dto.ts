@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Profile } from '../../models/profileModel';
 import { UserTypes } from '../../models/userModel';
-import { IDocs, IMethod } from '../../utilities/templates/types';
+import { IDocs} from '../../utilities/templates/types';
 import { authPaths } from './guard';
 
 const doc: IDocs = {};

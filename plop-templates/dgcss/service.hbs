@@ -92,7 +92,7 @@ export default class {{fcapitalize name}}Service {
 
   static async updateOne(
     queries: { [key: string]: any; _id: string },
-    data: Update{{fcapitalize name}}Dto,
+    data: Partial< Update{{fcapitalize name}}Dto>,
     others: UpdateQuery<{{fcapitalize name}}> & Partial<{{fcapitalize name}}> = {},
     options: QueryOptions = { new: true, runValidators: true },
   ): Promise<serviceResponseType<{{fcapitalize name}} | null>> {
