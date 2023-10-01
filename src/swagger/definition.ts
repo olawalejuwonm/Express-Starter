@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import swaggerJSDoc, { Options } from 'swagger-jsdoc';
 import { constructTemplate } from '../utilities/templates';
+import { IADoc, IDocs, IMethod } from '../utilities/templates/types';
 const { version } = require('../../package.json');
 
 //TODO: work on look for
@@ -70,7 +71,7 @@ const gernerateDTOSchema = (ALLDTO: any) => {
           properties,
         };
       } catch (e) {
-        console.log(e);
+        // console.log(e);
       }
     }
   }
@@ -127,9 +128,7 @@ const importedDTO = importEsALL(dtoFiles);
 const getRawSpec = (dir: string, format: string, lookfor?: string) => {
   const fullRoutedirs = getFullRoute(dir, format);
 
-  // console.log(importedDTO, 'importedDTO');
   const schemas = gernerateDTOSchema(importedDTO);
-  // console.log(schemas, 'schemas');
 
   const components = {
     securitySchemes: {
@@ -186,7 +185,6 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
     apis: [...fullRoutedirs],
   };
 
-  // console.log(fullRoutedirs, 'fullRoutedirs');
 
   const sjdocs = swaggerJSDoc(source) as any;
 
@@ -251,12 +249,9 @@ const deleteTemplate = path.join(__dirname, 'templates/delete.hbs');
 
 const paramTemplate = path.join(__dirname, 'templates/param.hbs');
 const queryTemplate = path.join(__dirname, 'templates/query.hbs');
-const docGen = (
-  docs: { description: string; method: any; schema: string },
-  method: any,
-) => {
-  if (docs?.description && docs?.method === method) {
-    docs.description = docs.description
+const docGen = (docs: IADoc, method: IMethod) => {
+  if (docs?.description || docs?.schema) {
+    docs.description = (docs?.description || '')
       // .replace(/"/g, '`')
       .replace(/\n/g, '')
       .replace(/\s+/g, ' ');
@@ -298,6 +293,7 @@ export const endpointSpec = (
     const endpointpath = endpoint.path;
     // url is the remaining part after basePath
     let url = endpointpath.replace(basePath, '');
+    let endUrl = url;
     // name is string after the first slash
     const name = url.split('/')[1];
     // console.log(name, 'name');
@@ -323,10 +319,15 @@ export const endpointSpec = (
     let compiledDocs = '';
     for (const method of methods) {
       // console.log(method, 'method');
-      if (method === 'POST') {
-        console.log(method, basePath + url, name);
-        let docs = importedDTO[name]?.docs?.[url] || {};
-        docs = docGen(docs, method);
+      // Remove name from url
+      const opath = endUrl.replace('/' + name, '');
+      let docs =
+        importedDTO[name]?.docs?.[opath || '/']?.[
+          method?.toLocaleUpperCase()
+        ] || {};
+      docs = docGen(docs, method as IMethod);
+      if (method === IMethod.POST) {
+
         const postTemp = constructTemplate(postTemplate, {
           name,
           url,
@@ -336,13 +337,12 @@ export const endpointSpec = (
 
         compiledDocs += postTemp;
       }
-      if (method === 'GET') {
+      if (method === IMethod.GET) {
         if (paramDocs === '') {
           paramDocs = ' *     parameters:';
         }
         paramDocs += constructTemplate(queryTemplate, {});
-        let docs = importedDTO[name]?.docs?.[url] || {};
-        docs = docGen(docs, method);
+
         const getTemp = constructTemplate(getTemplate, {
           name,
           url,
@@ -350,10 +350,10 @@ export const endpointSpec = (
           ...docs,
         });
         compiledDocs += getTemp;
+        paramDocs = '';
       }
-      if (method === 'PUT') {
-        let docs = importedDTO[name]?.docs?.[url] || {};
-        docs = docGen(docs, method);
+      if (method === IMethod.PUT) {
+        // console.log(endpoint.path, opath, 'url');
         const putTemp = constructTemplate(putTemplate, {
           name,
           url,
@@ -362,9 +362,8 @@ export const endpointSpec = (
         });
         compiledDocs += putTemp;
       }
-      if (method === 'DELETE') {
-        let docs = importedDTO[name]?.docs?.[url] || {};
-        docs = docGen(docs, method);
+      if (method === IMethod.DELETE) {
+        // docs = docGen(docs, method);
         const deleteTemp = constructTemplate(deleteTemplate, {
           name,
           url,
