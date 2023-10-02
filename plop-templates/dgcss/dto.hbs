@@ -11,15 +11,16 @@ export class Create{{fcapitalize name}}Dto implements Omit<{{fcapitalize name}},
 
 doc["/"] = {
   POST: {
-    schema: {{fcapitalize name}}Dto.name,
+    schema: Create{{fcapitalize name}}Dto.name,
   },
 };
+
 export class Update{{fcapitalize name}}Dto implements Omit<Create{{fcapitalize name}}Dto, ''> {
 
 }
 
 doc["/"] = {
   PUT: {
-    schema: {{fcapitalize name}}Dto.name,
+    schema: Update{{fcapitalize name}}Dto.name,
   },
 };

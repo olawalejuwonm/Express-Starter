@@ -46,7 +46,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 
 router.put('/:id', async (req: Request, res: Response) => {
-  const body = validateDTO(Update{{fcapitalize name}}Dto, payload);
+  const body = validateDTO(Update{{fcapitalize name}}Dto, req.body);
 
   const perm = throwPermIfError(await canUpdate{{fcapitalize name}}(req, false));
   const content = throwIfError(
