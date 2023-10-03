@@ -1,6 +1,16 @@
-## Getting Started
+## To start
+- Delete unused code
+- Rename globally
+- Reneame in .env
+- Change db
+- new vault
+- npx npm-check-updates -i --format group
 
+
+## Installation
+Note: This is a work in progress. The following instructions are not complete.
 To install the server, you need to have a working installation of [Node.js](https://nodejs.org/en/). Then, clone this repository and run `yarn install` in the root directory of the project. This will install all the dependencies.
+
 
 ## Running the Server
 
