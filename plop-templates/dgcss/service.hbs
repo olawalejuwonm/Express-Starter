@@ -7,12 +7,6 @@ import { validateDTO } from '../../middlewares/validate';
 import { {{fcapitalize name}}Model } from '../../models';
 
 export default class {{fcapitalize name}}Service {
-  /**
-   * Fetches {{fcapitalize name}}s from the database based on the provided queries and conditions.
-   * @param queries - The queries to filter the {{fcapitalize name}}s by.
-   * @param conditions - The conditions to apply to the query (optional).
-   * @returns A promise that resolves to an array of {{fcapitalize name}}s that match the provided queries and conditions.
-   */
   static async fetch(
     queries: { [key: string]: any },
     conditions: {} | undefined = undefined,
