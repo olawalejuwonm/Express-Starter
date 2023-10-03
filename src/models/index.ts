@@ -12,5 +12,3 @@ export const UserModel = UserMod as UserModelType;
 export const ProfileModel = getModelForClass(Profile);
 export const FileModel = getModelForClass(File);
 export const TokenModel = getModelForClass(Token);
-
-

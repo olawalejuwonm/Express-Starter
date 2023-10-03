@@ -161,7 +161,7 @@ module.exports = function (plop) {
       {
         type: 'modify',
         path: 'src/models/index.ts',
-        pattern: /(import .* from '..\/features\/.*\/model';)/,
+        pattern: /(import .* from '..\/features\/.*\/schema';)/,
         template:
           "$1\nimport { {{fcapitalize name}} } from '../features/{{name}}/schema';",
       },
