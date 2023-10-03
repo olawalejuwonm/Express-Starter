@@ -1,7 +1,7 @@
 {
   "name": "ExpressStarter",
   "version": "1.0.0",
-  "description": "HR  Core Api",
+  "description": "ExpressStarter Api",
   "main": "./bin/www",
   "scripts": {
     "start:dev": "nodemon --exec ts-node ./src/bin/www.ts",

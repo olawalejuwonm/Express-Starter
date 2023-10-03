@@ -3,7 +3,8 @@
 - Rename globally
 - Reneame in .env
 - Change db
-- new vault
+- Change Port
+- npx dotenv-vault@lastest new
 - npx npm-check-updates -i --format group
 
 
