@@ -10,9 +10,9 @@ export default class {{fcapitalize name}}Service {
   static async fetch(
     queries: { [key: string]: any },
     conditions: {} | undefined = undefined,
-  ): Promise<serviceResponseType<QueryReturn<{{fcapitalize name}}>>> {
+  ): Promise<serviceResponseType> {
     try {
-      let found{{fcapitalize name}}s: QueryReturn<{{fcapitalize name}}>;
+      let found{{fcapitalize name}}s;
       if (conditions) {
         found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries, conditions);
       }
@@ -60,7 +60,7 @@ export default class {{fcapitalize name}}Service {
   static async fetchOne(
     queries: { [key: string]: any },
     conditions: {} | undefined = undefined,
-  ): Promise<serviceResponseType<{{fcapitalize name}}>> {
+  ): Promise<serviceResponseType> {
     try {
       let found{{fcapitalize name}};
       if (conditions) {
