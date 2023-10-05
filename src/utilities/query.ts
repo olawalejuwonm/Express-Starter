@@ -1,10 +1,5 @@
 import _ from 'lodash';
-import mongoose, {
-  FilterQuery,
-  Model,
-  ProjectionType,
-  QueryOptions,
-} from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Document } from 'mongoose';
 
 const processOperators = (queryA: any) => {
@@ -75,14 +70,12 @@ export type QueryReturn<DT> = {
 };
 const get = async <DT>(
   model: Model<DT>,
-  queryA: FilterQuery<DT>,
+  queryA: { [key: string]: string },
   conditionsA: any = {},
-  projection?: ProjectionType<DT> | null | undefined,
-  options?: QueryOptions<DT> | null | undefined,
   multiple = true,
 ) => {
   try {
-    let query: any = queryA;
+    let query = queryA;
     let conditions = conditionsA;
     const populate = query._populate || conditions._populate;
     const select = query._select || conditions._select;
@@ -126,9 +119,12 @@ const get = async <DT>(
       });
     }
 
+    conditions = _.omit(conditions, ['_searchBy', '_keyword']);
+
     // get all key item that have value as array
     const arrayFields = _.pickBy(conditions, (value) => Array.isArray(value));
     console.log('arrayFields', arrayFields);
+
     const andQueries: any[] = [];
     // process operator for each arrayFields
     Object.keys(arrayFields).forEach((field) => {
@@ -244,9 +240,9 @@ const get = async <DT>(
     let q: any;
 
     if (multiple) {
-      q = model.find(conditions, projection, options);
+      q = model.find(conditions);
     } else {
-      q = model.findOne(conditions, projection, options);
+      q = model.findOne(conditions);
     }
 
     if (populate) {
@@ -293,21 +289,15 @@ const get = async <DT>(
 };
 export const find = async <DT>(
   model: Model<DT>,
-  query: FilterQuery<DT>,
+  query: any,
   conditions?: object | undefined,
-  projection?: ProjectionType<DT> | null | undefined,
-  options?: QueryOptions<DT> | null | undefined,
-): Promise<QueryReturn<DT>> =>
-  get(model, query, conditions, projection, options);
+): Promise<QueryReturn<DT>> => get(model, query, conditions);
 
 export const findOne = async <DT>(
   model: Model<DT>,
-  query: FilterQuery<DT>,
+  query: any,
   conditions?: object | undefined,
-  projection?: ProjectionType<DT> | null | undefined,
-  options?: QueryOptions<DT> | null | undefined,
-): Promise<Document<DT> & DT> =>
-  get(model, query, conditions, projection, options, false);
+): Promise<Document<DT> & DT> => get(model, query, conditions, false);
 
 export default {
   find,

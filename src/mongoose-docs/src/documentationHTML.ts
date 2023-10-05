@@ -7,7 +7,7 @@ let docs = '';
 try {
   docs = fs.readFileSync(path.join(__dirname, 'docs.md'), 'utf8');
 } catch (error) {
-  // console.log(error);
+  console.log(error);
 }
 
 /**
@@ -259,7 +259,7 @@ All GET requests that fetch data collections from the API are designed to take t
 * _orderBy => sort fetched data by a particular field (e.g ?orderBy=firstName will sort data by the firstName fields)
 * _order => how to sort data, i.e ascending or descending order. Values are asc or desc (e.g ?_orderBy=firstName&_order=asc will sort data by firstName field in ascending order )
 * _populate => specify what mongo id field to populate into an object. You can specify multiple fields to populate by adding [] e.g ?_populate[]=user&populate[]=event
-* _searchBy and keyword => for routes that fetch data like posts, transactions, you can perform a partial or full word search using e.g /posts?_searchBy[]=text&_keyword=arise will fetch posts in whose text fields (This can be multiple) it can find a match called arise.
+* _searchBy and _keyword => for routes that fetch data like posts, transactions, you can perform a partial or full word search using e.g /posts?_searchBy[]=text&_keyword=arise will fetch posts in whose text fields (This can be multiple) it can find a match called arise.
 You can search a single field by preceeding with $ like text:#arise
 
 There are some endpoints however, that will search through some fields if only the keyword query is passed
