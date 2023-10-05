@@ -6,7 +6,7 @@ import { IDocs} from '../../utilities/templates/types';
 const doc: IDocs = {};
 
 
-export class Create{{fcapitalize name}}Dto implements Omit<{{fcapitalize name}}, 'createdBy'> {
+export class Create{{fcapitalize name}}Dto implements Omit<Required<{{fcapitalize name}}>, 'createdBy'> {
 }
 
 doc["/"] = {
