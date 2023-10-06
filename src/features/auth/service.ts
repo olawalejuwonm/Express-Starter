@@ -358,6 +358,13 @@ export default class AuthService {
           data: null,
         };
       }
+      if (user.phoneVerified) {
+        return {
+          success: false,
+          message: 'Phone number already verified',
+          data: null,
+        };
+      }
       const theToken: string = await saveToken(
         4,
         data.phone,

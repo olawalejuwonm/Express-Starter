@@ -1,3 +1,8 @@
+#TODO
+- Don't allow previous password usage
+- Lock account for multiple attempts
+
+
 ## To start
 - Delete unused code
 - Rename globally
