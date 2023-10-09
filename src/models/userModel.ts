@@ -1,19 +1,14 @@
 import {
   prop,
   Ref,
-  DocumentType,
+  type DocumentType,
   plugin,
   modelOptions,
 } from '@typegoose/typegoose';
 import passportLocalMongoose from 'passport-local-mongoose';
 import idValidator from 'mongoose-id-validator2';
 import { signJWT } from '../utilities/jwt';
-import {
-  InferSchemaType,
-  PassportLocalDocument,
-  PassportLocalModel,
-  Types,
-} from 'mongoose';
+import { type PassportLocalDocument } from 'mongoose';
 import { Profile } from './profileModel';
 
 const options = {
