@@ -7,7 +7,7 @@ let docs = '';
 try {
   docs = fs.readFileSync(path.join(__dirname, 'docs.md'), 'utf8');
 } catch (error) {
-  console.log(error);
+  // console.log(error);
 }
 
 /**
