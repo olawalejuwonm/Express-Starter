@@ -77,6 +77,7 @@ export class User {
     required: true,
     source: 'body',
     comment: "This is an email only for the user's login",
+    lowercase: true,
   })
   email!: string;
 
