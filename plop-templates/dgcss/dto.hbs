@@ -20,7 +20,10 @@ export class Update{{fcapitalize name}}Dto implements Omit<Create{{fcapitalize n
 }
 
 doc["/"] = {
+    ...doc['/'],
   PUT: {
     schema: Update{{fcapitalize name}}Dto.name,
   },
 };
+
+export const docs = doc;
