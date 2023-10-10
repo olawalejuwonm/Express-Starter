@@ -185,7 +185,6 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
     apis: [...fullRoutedirs],
   };
 
-
   const sjdocs = swaggerJSDoc(source) as any;
 
   const pathWithBase: {
@@ -249,6 +248,15 @@ const deleteTemplate = path.join(__dirname, 'templates/delete.hbs');
 
 const paramTemplate = path.join(__dirname, 'templates/param.hbs');
 const queryTemplate = path.join(__dirname, 'templates/query.hbs');
+let compiledHeader: string;
+let headerTemplate = '';
+
+headerTemplate = path.join(__dirname, 'templates/header.hbs');
+// if header template exists, compile it
+if (fs.existsSync(headerTemplate)) {
+  compiledHeader = constructTemplate(headerTemplate, {});
+}
+
 const docGen = (docs: IADoc, method: IMethod) => {
   if (docs?.description || docs?.schema) {
     docs.description = (docs?.description || '')
@@ -312,6 +320,13 @@ export const endpointSpec = (
         paramDocs += paramTemp;
       });
     }
+    if (compiledHeader) {
+      // console.log('compiledHeader', compiledHeader);
+      if (paramDocs === '') {
+        paramDocs = ' *     parameters:';
+      }
+      paramDocs += compiledHeader;
+    }
     // escape if name doesn't start with an alphabet or doesn't end with an alphabet
     if (!name.match(/^[a-zA-Z]+/) || !name.match(/[a-zA-Z]+$/g)) {
       continue;
@@ -326,8 +341,11 @@ export const endpointSpec = (
           method?.toLocaleUpperCase()
         ] || {};
       docs = docGen(docs, method as IMethod);
-      if (method === IMethod.POST) {
 
+      if (method === IMethod.POST) {
+        // console.log(endpoint.path, opath, 'url', docs, importedDTO[name], importedDTO[name]?.docs?.[opath || '/']?.[
+        //   method?.toLocaleUpperCase()
+        // ]);
         const postTemp = constructTemplate(postTemplate, {
           name,
           url,
@@ -363,7 +381,6 @@ export const endpointSpec = (
         compiledDocs += putTemp;
       }
       if (method === IMethod.DELETE) {
-        // docs = docGen(docs, method);
         const deleteTemp = constructTemplate(deleteTemplate, {
           name,
           url,
