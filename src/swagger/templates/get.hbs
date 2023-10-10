@@ -5,14 +5,15 @@
  *
  * {{url}}:
  *   get:
- *     summary: Fetch {{name}}
+ *     summary: GET - {{name}}
+ *     description: {{escape description}}
  *     tags:
  *       - {{name}}
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: {{name}}s fetched successfully
+ *         description: {{name}} successful
  *         content:
  *           application/json:
  *             schema:

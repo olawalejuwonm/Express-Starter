@@ -5,7 +5,8 @@
  *
  * {{url}}:
  *   post:
- *     summary: Create a new {{name}}
+ *     summary: POST - {{name}}
+ *     description: {{escape description}}
  *     tags:
  *       - {{name}}
  *     security:
@@ -15,10 +16,16 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/GeneralBody'
+ *             $ref: '#/components/schemas/{{schema}}'
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *               - $ref: '#/components/schemas/{{schema}}'
+ *         multipart/form-data:
+ *           schema:
+ *             $ref: '#/components/schemas/{{schema}}'
  *     responses:
  *       200:
- *         description: {{name}} created successfully
+ *         description: {{name}} successful
  *         content:
  *           application/json:
  *             schema:
