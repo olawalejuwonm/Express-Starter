@@ -257,12 +257,27 @@ if (fs.existsSync(headerTemplate)) {
   compiledHeader = constructTemplate(headerTemplate, {});
 }
 
-const docGen = (docs: IADoc, method: IMethod) => {
+function convertToSingleLineString(multilineText: string = '') {
+  // Replace newlines with \r\n and escape double quotes
+  const singleLineText = multilineText
+    .replace(/"/g, '\\"') // Escape double quotes
+    .replace(/\n/g, '\\n\r\\n') // Replace newlines with \n\r\n
+    .replace(/\s+/g, ' ');     // ensure that every thing is in one line
+
+  // Wrap the resulting text in double quotes
+  return `"${singleLineText}"`;
+}
+
+
+
+const docGen = (docs: IADoc) => {
   if (docs?.description || docs?.schema) {
-    docs.description = (docs?.description || '')
-      // .replace(/"/g, '`')
-      .replace(/\n/g, '')
-      .replace(/\s+/g, ' ');
+    // docs.description = (docs?.description || '')
+    //   // .replace(/"/g, '`')
+    //   .replace(/\n/g, '')
+    //   .replace(/\s+/g, ' ');
+    docs.description = convertToSingleLineString(docs?.description);
+    // docs.description = formatScatteredTextForSwagger(docs?.description);
     docs.description = docs?.description || '';
     docs.schema = docs?.schema || 'GeneralBody';
   } else {
@@ -271,6 +286,8 @@ const docGen = (docs: IADoc, method: IMethod) => {
   }
   return docs;
 };
+
+const write = true;
 
 export const endpointSpec = (
   endpoints: {
@@ -288,13 +305,14 @@ export const endpointSpec = (
   const docsPath = path.join(__dirname, 'docs');
 
   // delete all files in the docs folder if it exists
-  if (fs.existsSync(docsPath)) {
-    try {
-      fs.rmSync(docsPath, { recursive: true });
-    } catch (error) {
-      console.log(error);
+  if (write)
+    if (fs.existsSync(docsPath)) {
+      try {
+        fs.rmSync(docsPath, { recursive: true });
+      } catch (error) {
+        console.log(error);
+      }
     }
-  }
   for (const endpoint of endpoints) {
     // console.log(endpoint, 'endpoint');
     const methods = endpoint.methods;
@@ -340,7 +358,7 @@ export const endpointSpec = (
         importedDTO[name]?.docs?.[opath || '/']?.[
           method?.toLocaleUpperCase()
         ] || {};
-      docs = docGen(docs, method as IMethod);
+      docs = docGen(docs);
 
       if (method === IMethod.POST) {
         // console.log(endpoint.path, opath, 'url', docs, importedDTO[name], importedDTO[name]?.docs?.[opath || '/']?.[
@@ -392,7 +410,7 @@ export const endpointSpec = (
       i++;
     }
     const filePath = path.join(__dirname, 'docs', `${i + name}.hbs`);
-    writeToFile(compiledDocs, filePath);
+    if (write) writeToFile(compiledDocs, filePath);
   }
 
   console.log(`Total endpoints: ${i}`);

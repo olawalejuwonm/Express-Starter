@@ -1,10 +1,26 @@
 import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
+import { UserType } from '../../models/userModel';
+import { isDocument } from '@typegoose/typegoose';
+
 
 handlebars.registerHelper('escape', function(variable) {
   return variable?.replace(/(['"])/g, '\\$1');
 });
+
+export const getPopulatedUser = async (model: UserType) => {
+  if (isDocument(model.profile)) {
+    return model.profile;
+  } else {
+    const populatedPath = await model.populate('profile');
+    if (isDocument(populatedPath.profile)) {
+      return populatedPath.profile;
+    } else {
+      throw new Error('Profile not found');
+    }
+  }
+};
 
 export const constructTemplate = (
   filePath: string,
