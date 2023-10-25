@@ -194,9 +194,16 @@ const get = async <DT>(
         models[modelName?.toLowerCase()] = mongoose.model(modelName);
         //TODO: Do a work around for refPath
       });
+
+      const docName =
+        (model.schema?.paths?.contacts as any)?.caster?.options?.ref || '';
+        console.info(docName, 'docName', models);
+      // console.info(models, 'models', model.schema.paths.contacts?.caster?.options?.ref);
       for (const field of Object.keys(conditions || {})) {
         const fieldParts = field.split('.');
-        const model = models[fieldParts[0]?.toLowerCase()];
+        // const model = models[fieldParts[0]?.toLowerCase()];
+        const model: Model<any> = models[docName?.toLowerCase()];
+        console.info(model, 'model');
         if (model) {
           // const modelFields = Object.keys(model.schema.paths);
           // search by the other parts of fieldParts
