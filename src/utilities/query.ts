@@ -106,7 +106,6 @@ const get = async <DT>(
   try {
     let query = queryA;
     let conditions = conditionsA;
-    console.log(query, 'query._populate', conditions._populate);
     const populate = query._populate || conditions._populate;
     const select = query._select || conditions._select;
     const limit = parseInt(query._limit || conditions._limit || '10', 10);
@@ -117,7 +116,6 @@ const get = async <DT>(
     const keyword = query._keyword || conditions._keyword;
     const skip = (page - 1) * limit;
 
-    console.log('populate', populate);
 
     // omit any field in query that's not in the model
 
@@ -183,12 +181,6 @@ const get = async <DT>(
       delete conditions[field];
     });
 
-    console.log(
-      'andQueries',
-      andQueries,
-      'requiredConditions',
-      requiredConditions,
-    );
 
     conditions = {
       ...conditions,
@@ -289,8 +281,6 @@ const get = async <DT>(
     console.log(
       'final condition before query',
       conditions,
-      `conditions['$and']`,
-      conditions['$and'],
     );
 
     // let q = model[multiple ? 'find' : 'findOne'](conditions);
