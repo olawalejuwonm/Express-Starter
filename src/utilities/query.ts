@@ -2,6 +2,7 @@ import _ from 'lodash';
 import mongoose, { Model } from 'mongoose';
 import { Document } from 'mongoose';
 
+const skippedArrayFields = ['$or'];
 const processOperators = (queryA: any) => {
   const query = queryA;
   const operators = ['lt', 'lte', 'gt', 'gte', 'in', 'nin', 'ne', 'eq'];
@@ -68,6 +69,34 @@ export type QueryReturn<DT> = {
   totalDocs: number;
   totalPages: number;
 };
+
+// merge
+// _populate: [ 'createdBy', 'createdBy.colleges', 'createdBy.profile' ]
+// _populate job
+export const mergeQueries = (
+  queryA: any,
+  queryB: { [key: string]: string | Array<string> },
+) => {
+  const query = queryA;
+  Object.keys(queryB).forEach((field) => {
+    if (query[field]) {
+      if (Array.isArray(query[field])) {
+        query[field] = [
+          ...query[field],
+          ...(Array.isArray(queryB[field]) ? queryB[field] : [queryB[field]]),
+        ];
+      }
+      else {
+        query[field] = [query[field], ...(Array.isArray(queryB[field]) ? queryB[field] : [queryB[field]])];
+      }
+      //else turn q
+      // query[field] = { ...query[field], ...queryB[field] };
+    } else {
+      query[field] = queryB[field];
+    }
+  });
+  return query;
+};
 const get = async <DT>(
   model: Model<DT>,
   queryA: { [key: string]: string },
@@ -77,6 +106,7 @@ const get = async <DT>(
   try {
     let query = queryA;
     let conditions = conditionsA;
+    console.log(query, 'query._populate', conditions._populate);
     const populate = query._populate || conditions._populate;
     const select = query._select || conditions._select;
     const limit = parseInt(query._limit || conditions._limit || '10', 10);
@@ -86,6 +116,8 @@ const get = async <DT>(
     const searchBy = query._searchBy || conditions._searchBy;
     const keyword = query._keyword || conditions._keyword;
     const skip = (page - 1) * limit;
+
+    console.log('populate', populate);
 
     // omit any field in query that's not in the model
 
@@ -129,6 +161,11 @@ const get = async <DT>(
     // process operator for each arrayFields
     Object.keys(arrayFields).forEach((field) => {
       //field e.g updatedAt
+      // console.log('field', field)
+      // skip if field is in skippedArrayFields
+      if (skippedArrayFields.includes(field)) {
+        return;
+      }
       const arrayField = arrayFields[field];
       // const arrayFieldQuery = {};
       arrayField.forEach((value: any) => {
@@ -146,7 +183,12 @@ const get = async <DT>(
       delete conditions[field];
     });
 
-    console.log('andQueries', andQueries);
+    console.log(
+      'andQueries',
+      andQueries,
+      'requiredConditions',
+      requiredConditions,
+    );
 
     conditions = {
       ...conditions,
@@ -195,15 +237,19 @@ const get = async <DT>(
         //TODO: Do a work around for refPath
       });
 
-      const docName =
-        (model.schema?.paths?.contacts as any)?.caster?.options?.ref || '';
-        console.info(docName, 'docName', models);
+      const mainModel = model;
       // console.info(models, 'models', model.schema.paths.contacts?.caster?.options?.ref);
       for (const field of Object.keys(conditions || {})) {
         const fieldParts = field.split('.');
+        const docName =
+          (mainModel.schema?.paths[fieldParts[0]] as any)?.caster?.options
+            ?.ref ||
+          (mainModel.schema?.paths[fieldParts[0]] as any)?.options?.ref ||
+          '';
+        // console.info(docName, 'docName', models);
         // const model = models[fieldParts[0]?.toLowerCase()];
         const model: Model<any> = models[docName?.toLowerCase()];
-        console.info(model, 'model');
+        // console.info(model, 'model');
         if (model) {
           // const modelFields = Object.keys(model.schema.paths);
           // search by the other parts of fieldParts
@@ -224,7 +270,7 @@ const get = async <DT>(
             }
           }
           delete conditions[field];
-          console.info(conditions, 'conditions');
+          console.info(conditions, 'conditions', conditions[fieldParts[0]]);
         }
       }
       _filterOnPopulate = true;
@@ -240,7 +286,12 @@ const get = async <DT>(
       console.log('conditions after filtering', conditions);
     }
 
-    console.log('final condition before query', conditions);
+    console.log(
+      'final condition before query',
+      conditions,
+      `conditions['$and']`,
+      conditions['$and'],
+    );
 
     // let q = model[multiple ? 'find' : 'findOne'](conditions);
     // let q: mongoose.Query<DT, DT>;
@@ -252,6 +303,7 @@ const get = async <DT>(
       q = model.findOne(conditions);
     }
 
+    console.log("final Populate: ", populate)
     if (populate) {
       if (Array.isArray(populate) && populate.length) {
         populate.forEach((field) => {
