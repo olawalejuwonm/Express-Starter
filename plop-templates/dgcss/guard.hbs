@@ -1,7 +1,10 @@
 import { checkUserTypesService } from '../../middlewares/authentication';
 import { GuardFunction } from '../../guards';
+import { FilterQuery } from 'mongoose';
+import { {{fcapitalize name}} } from './schema';
 
-export const canCreate{{fcapitalize name}}: GuardFunction = async (req, exec) => {
+
+export const canCreate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     // throw new Error('Not implemented');
@@ -21,7 +24,7 @@ export const canCreate{{fcapitalize name}}: GuardFunction = async (req, exec) =>
   }
 };
 
-export const canFetch{{fcapitalize name}}: GuardFunction = async (req, exec) => {
+export const canFetch{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -38,7 +41,7 @@ export const canFetch{{fcapitalize name}}: GuardFunction = async (req, exec) => 
   }
 };
 
-export const canUpdate{{fcapitalize name}}: GuardFunction = async (req, exec) => {
+export const canUpdate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -55,7 +58,7 @@ export const canUpdate{{fcapitalize name}}: GuardFunction = async (req, exec) =>
   }
 };
 
-export const canDelete{{fcapitalize name}}: GuardFunction = async (req, exec) => {
+export const canDelete{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {

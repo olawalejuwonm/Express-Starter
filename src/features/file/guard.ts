@@ -3,8 +3,10 @@ import {
   checkUserTypesService,
 } from '../../middlewares/authentication';
 import { GuardFunction } from '../../guards';
+import { FilterQuery } from 'mongoose';
+import { File } from './schema';
 
-export const canCreateFile: GuardFunction<any, any, any> = async (
+export const canCreateFile: GuardFunction<FilterQuery<File>> = async (
   req,
   exec,
 ) => {
@@ -25,7 +27,7 @@ export const canCreateFile: GuardFunction<any, any, any> = async (
   }
 };
 
-export const canFetchFile: GuardFunction = async (req) => {
+export const canFetchFile: GuardFunction<FilterQuery<File>> = async (req) => {
   try {
     // await checkUserTypesService(req, ['super']);
     await authenticateCheck(req);
@@ -43,7 +45,7 @@ export const canFetchFile: GuardFunction = async (req) => {
   }
 };
 
-export const canUpdateFile: GuardFunction = async (req) => {
+export const canUpdateFile: GuardFunction<FilterQuery<File>> = async (req) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -60,7 +62,7 @@ export const canUpdateFile: GuardFunction = async (req) => {
   }
 };
 
-export const canDeleteFile: GuardFunction = async (req) => {
+export const canDeleteFile: GuardFunction<FilterQuery<File>> = async (req) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {

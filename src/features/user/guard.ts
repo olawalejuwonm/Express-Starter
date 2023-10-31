@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request } from 'express';
 import {
   authenticateCheck,
-  checkUserTypes,
   checkUserTypesService,
 } from '../../middlewares/authentication';
-import { throwMiddleware } from '../../utilities';
 import { GuardFunction, PermType } from '../../guards';
+import { User } from './schema';
+import { FilterQuery } from 'mongoose';
 
 export const canCreateUser = async (req: Request): Promise<PermType> => {
   try {
@@ -67,8 +67,7 @@ export const canFetchProfiles = async (req: Request): Promise<PermType> => {
     return {
       auth: true,
       message: 'Can fetch User',
-      query: {
-      },
+      query: {},
     };
   } catch (error) {
     return {
@@ -78,7 +77,9 @@ export const canFetchProfiles = async (req: Request): Promise<PermType> => {
     };
   }
 };
-export const canUpdateProfile: GuardFunction = async (req) => {
+export const canUpdateProfile: GuardFunction<FilterQuery<User>> = async (
+  req,
+) => {
   try {
     await authenticateCheck(req);
     return {
@@ -97,7 +98,7 @@ export const canUpdateProfile: GuardFunction = async (req) => {
   }
 };
 
-export const canUpdateUserStatus: GuardFunction = async (req) => {
+export const canUpdateUserStatus: GuardFunction<FilterQuery<User>> = async (req) => {
   try {
     await checkUserTypesService(req, ['super']);
 

@@ -30,14 +30,14 @@ export class UpdateUserDto
       | 'phoneVerified'
       | 'roles'
       | 'permissions'
+      | 'email'
+      | 'phone'
     >
 {
+  @IsOptional()
   firstName: string;
+  @IsOptional()
   lastName: string;
-  @IsOptional()
-  email: string;
-  @IsOptional()
-  phone: string;
   //export class UpdateUserDto implements Partial<User> {
 }
 
