@@ -1,4 +1,3 @@
-import { UserType } from '../../models/userModel';
 import Settings from '../../models/settingsModel';
 import connectDb from '../connectDb';
 import Permission from '../../models/permissionModel';
@@ -7,7 +6,7 @@ import { importAllModels } from '../../controllers/generators/service';
 import { crudModelPermssions } from '../../guards';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import { ProfileModel, UserModel } from '../../models';
+import { UserModel } from '../../models';
 
 const payload = {
   firstName: 'Super',
@@ -55,13 +54,10 @@ const seed = async (): Promise<void> => {
 
     if (!admin) {
       // Create Profile
-      const profile = await ProfileModel.create(payload);
       admin = await UserModel.register(
-        new UserModel({ ...payload, profile: profile._id }),
+        new UserModel({ ...payload }),
         payload.password,
       );
-      profile.createdBy = admin._id;
-      await profile.save();
       console.log('admin seeded successfully', admin);
     }
 

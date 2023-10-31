@@ -6,14 +6,30 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { Profile } from '../../models/profileModel';
-import { UserTypes } from '../../models/userModel';
-import { IDocs} from '../../utilities/templates/types';
+import { IDocs } from '../../utilities/templates/types';
 import { authPaths } from './guard';
+import { User, UserTypes } from '../user/schema';
 
 const doc: IDocs = {};
 
-export class RegisterDto implements Partial<Profile> {
+export class RegisterDto
+  implements
+    Omit<
+      Required<User>,
+      | 'lastLogin'
+      | 'emailVerified'
+      | 'lastActive'
+      | 'lastLogin'
+      | 'isAdmin'
+      | 'status'
+      | 'role'
+      | 'phoneVerified'
+      | 'generateJWT'
+      | 'roles'
+      | 'permissions'
+      | 'toJSON'
+    >
+{
   @IsNotEmpty()
   @IsEmail(
     {},
@@ -40,16 +56,16 @@ export class RegisterDto implements Partial<Profile> {
   public password!: string;
 
   @IsNotEmpty()
-  firstName?: string;
+  firstName!: string;
 
   @IsNotEmpty()
-  lastName?: string;
+  lastName!: string;
 
   @IsNotEmpty()
-  type?: UserTypes;
+  type!: UserTypes;
 
   @IsNotEmpty()
-  phone?: string | undefined;
+  phone!: string;
 }
 
 doc[authPaths.register] = {

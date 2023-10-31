@@ -1,5 +1,5 @@
 import { PermType, isPermitted } from '.';
-import { UserType } from '../models/userModel';
+import { UserType } from '../features/user/schema';
 
 export const canCreateRole = async (user: UserType): Promise<PermType> => {
   const canCreate = await isPermitted(user, 'create:role');

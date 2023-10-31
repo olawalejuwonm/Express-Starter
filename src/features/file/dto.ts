@@ -1,7 +1,7 @@
 import { IsOptional } from 'class-validator';
 import { File } from './schema';
 import { Ref } from '@typegoose/typegoose';
-import { User } from '../../models/userModel';
+import { User } from '../user/schema';
 
 export class CreateFileDto implements File {
     url: string;

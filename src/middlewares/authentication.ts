@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
-import { UserType, UserTypes } from '../models/userModel';
 import { decodeJWT } from '../utilities/jwt';
 import response from '../utilities/response';
 import Permission from '../models/permissionModel';
@@ -9,6 +8,7 @@ import Role from '../models/role.model';
 import { AuthQuery } from '../utilities/permission';
 import { isDocument } from '@typegoose/typegoose';
 import { UserModel } from '../models';
+import { UserTypes } from '../features/user/schema';
 
 // TODO: Write intrface
 // Make envs in a single variable
@@ -60,12 +60,6 @@ export const authenticator: any = async (
               message: 'Invalid token',
             };
           }
-          if (isDocument(user['profile'])) {
-            req.user = user as any;
-          } else {
-            throw new Error('Profile not found');
-          }
-          user.profile.firstName;
 
 
           user.lastActive = new Date();

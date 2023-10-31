@@ -8,16 +8,16 @@ import {
   VerifyEmailResendDto,
   VerifyToken,
 } from './dto';
-import { AllUserType, UserType } from '../../models/userModel';
 import { serviceResponseType } from '../../utilities/response';
 import { genToken, saveToken, verifyToken } from '../../utilities/token';
 import AuthTemplates, {
   resetPasswordTemplate,
 } from '../../utilities/templates/auth';
-import { ProfileModel, UserModel } from '../../models';
+import { UserModel } from '../../models';
 import axios from 'axios';
 import { validateDTO } from '../../middlewares/validate';
 import { TokenType } from '../../models/token';
+import { AllUserType, UserType } from '../user/schema';
 export default class AuthService {
   static async login(data: LoginDto): Promise<serviceResponseType> {
     try {
@@ -69,13 +69,6 @@ export default class AuthService {
     try {
       const { email, password } = data;
 
-      const profile = await ProfileModel.create({
-        ...data,
-        // ...user.toObject(),
-        // _id: user._id,
-        // createdBy: user._id,
-      });
-
       // Check if user with phone exists
       const userWithPhone = await UserModel.findOne({
         phone: data.phone,
@@ -92,18 +85,14 @@ export default class AuthService {
       const user = await UserModel.register(
         new UserModel({
           ...data,
-          ...(profile.toObject ? profile.toObject() : profile),
-          _id: profile._id,
-          profile: profile._id,
           email,
         }),
         password,
       );
 
-      profile.createdBy = user._id;
-      await profile.save();
 
-      console.log('user', user._id, profile);
+
+      console.log('user', user._id);
       // if (profile.type === 'artisan')
       // await welcomeTemplate(user.email, profile);
 

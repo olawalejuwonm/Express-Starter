@@ -1,6 +1,6 @@
 import { prop, plugin, pre, modelOptions, Ref } from '@typegoose/typegoose';
 import mongooseIdValidator from 'mongoose-id-validator2';
-import { User } from '../../models/userModel';
+import { User } from '../user/schema';
 @plugin(mongooseIdValidator)
 @pre<File>('save', function (next) {
   // this.record = doc.name + '-' + doc.createdBy;

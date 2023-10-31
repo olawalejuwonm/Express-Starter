@@ -6,15 +6,12 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Status, User, UserTypes } from '../../models/userModel';
-import { Ref, DocumentType } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
-import { IDocs, IMethod } from '../../utilities/templates/types';
+import { IDocs } from '../../utilities/templates/types';
+import { User, UserStatus } from './schema';
+import { Ref } from '@typegoose/typegoose';
 
 const doc: IDocs = {};
-export class CreateUserDto implements Partial<User> {
-  // export class CreateUserDto implements Partial<User> {
-}
+
 export class UpdateUserDto
   implements
     Omit<
@@ -31,8 +28,12 @@ export class UpdateUserDto
       | 'lastLogin'
       | 'type'
       | 'phoneVerified'
+      | 'roles'
+      | 'permissions'
     >
 {
+  firstName: string;
+  lastName: string;
   @IsOptional()
   email: string;
   @IsOptional()
@@ -53,7 +54,7 @@ export class UpdateUserStatusDto {
 
   @IsNotEmpty()
   @IsString()
-  status: Status;
+  status: UserStatus;
 
   // description should be only required when status is rejected
   @IsOptional()

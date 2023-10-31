@@ -1,15 +1,10 @@
-import response, { serviceResponseType } from '../utilities/response';
+import { serviceResponseType } from '../utilities/response';
 import { find, findOne } from '../utilities/query';
-import { matched, validForm } from '../middlewares/validators';
-import { Request, Response, NextFunction } from 'express';
 import Notification, { NotificationType } from '../models/notification.model';
-import Permission from '../utilities/permission';
-import { UserType } from '../models/userModel';
-import permissionModel from '../models/permissionModel';
 import { Novu } from '@novu/node';
 import { Document, Types } from 'mongoose';
-import { Profile } from '../models/profileModel';
 import { UserModel } from '../models';
+import { User } from '../features/user/schema';
 
 export default class NotificationService {
   private static novu = new Novu(process.env.NOVU_API_KEY as string);
@@ -112,13 +107,13 @@ export default class NotificationService {
 
   static async subscribeToNotification(
     userId: Types.ObjectId,
-    userDetails: Profile & Document<any, any, Profile>,
+    userDetails: User & Document,
   ): Promise<serviceResponseType> {
     try {
       const subscribed = await this.novu.subscribers.identify(
         userId as unknown as string,
         {
-          email: (userDetails?.createdBy as unknown as UserType)?.email,
+          email: userDetails.email,
           firstName: userDetails.firstName,
           lastName: userDetails.lastName,
           // phone: userDetails.phone,

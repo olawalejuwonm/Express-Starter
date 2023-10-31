@@ -1,12 +1,11 @@
 import mongoose from 'mongoose';
-import { User, UserType } from '../models/userModel';
 import { PermissionType } from '../models/permissionModel';
 import { RoleType } from '../models/role.model';
 import { importAllModels } from '../controllers/generators/service';
 import { DocumentType } from '@typegoose/typegoose';
 import { Request } from 'express';
 import * as core from 'express-serve-static-core';
-
+import { User, UserType } from '../features/user/schema';
 
 export const crudModelPermssions = (
   model: string | string[],

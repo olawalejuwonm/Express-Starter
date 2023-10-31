@@ -1,6 +1,6 @@
+import { UserType } from '../features/user/schema';
 import { TokenModel } from '../models';
 import { Token, TokenType } from '../models/token';
-import { UserType } from '../models/userModel';
 import { createRandomNumbers, createHex } from './index';
 import { serviceError, serviceResponseType, serviceSuccess } from './response';
 

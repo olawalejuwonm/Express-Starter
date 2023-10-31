@@ -1,15 +1,12 @@
 import express, { Request, Response } from 'express';
 import {
-  canCreateUser,
   canDeleteUser,
   canFetchProfile,
   canFetchProfiles,
-  canFetchUser,
-  canUpdateProfile,
   canUpdateUserStatus,
 } from './guard';
 import { validateDTO } from '../../middlewares/validate';
-import { CreateUserDto, UpdateUserDto, UpdateUserStatusDto } from './dto';
+import { UpdateUserStatusDto } from './dto';
 import UserService from './service';
 import response, {
   throwIfError,
@@ -20,41 +17,12 @@ import mongoose from 'mongoose';
 import { checkUserTypes } from '../../middlewares/authentication';
 const router = express.Router();
 
-router.get('/profile', async (req: Request, res: Response) => {
-  const perm = throwPermIfError(await canFetchProfile(req));
-  const data = throwIfError(
-    await UserService.fetchProfile(req.query, {
-      ...perm.query,
-    }),
-  );
-  return response(res, data.statusCode, data.message, data.data);
-});
-router.get('/profiles', async (req: Request, res: Response) => {
-  const perm = throwPermIfError(await canFetchProfiles(req));
-  const data = throwIfError(
-    await UserService.fetchProfiles(req.query, {
-      ...perm.query,
-      createdBy: {
-        $ne: null,
-      },
-    }),
-  );
-  return response(res, data.statusCode, data.message, data.data);
-});
-
 router.get('/', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canFetchProfiles(req));
   const data = throwIfError(
     await UserService.fetchUsers(req.query, {
       ...perm.query,
     }),
-  );
-  return response(res, data.statusCode, data.message, data.data);
-});
-router.put('/profile', async (req: Request, res: Response) => {
-  const perm = throwPermIfError(await canUpdateProfile(req, true));
-  const data = throwIfError(
-    await UserService.updateProfile({ ...perm.query }, req.body),
   );
   return response(res, data.statusCode, data.message, data.data);
 });
@@ -76,8 +44,6 @@ router.put(
     return response(res, data.statusCode, data.message, data.data);
   },
 );
-
-
 
 router.put(
   '/update-status',
