@@ -117,12 +117,12 @@ export default class UserService {
         throw new Error('User not found or access denied');
       }
       const otherData: Partial<User> = {};
-      if (data.email) {
-        otherData.emailVerified = false;
-      }
-      if (data.phone) {
-        otherData.phoneVerified = false;
-      }
+      // if (data.email) {
+      //   otherData.emailVerified = false;
+      // }
+      // if (data.phone) {
+      //   otherData.phoneVerified = false;
+      // }
       const updatedUser = await UserModel.findByIdAndUpdate(
         foundUser._id,
         { ...data, ...otherData },
