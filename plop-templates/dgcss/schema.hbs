@@ -6,7 +6,7 @@ import {
   Ref,
 } from '@typegoose/typegoose';
 import mongooseIdValidator from 'mongoose-id-validator2';
-import { User } from '../../models/userModel';
+import { User } from '../user/schema';
 
 @plugin(mongooseIdValidator)
 @pre<{{fcapitalize name}}>('save', function (next) {
