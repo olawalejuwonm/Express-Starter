@@ -9,7 +9,7 @@
 - Reneame in .env
 - Change db
 - Change Port
-- npx dotenv-vault@lastest new
+- npx dotenv-vault@latest new
 - npx npm-check-updates -i --format group
 - yarn check
 

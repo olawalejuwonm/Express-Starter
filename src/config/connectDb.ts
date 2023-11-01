@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import log from '../logger';
 import dotenv from 'dotenv';
-const uniqueValidator = require('mongoose-unique-validator');
 dotenv.config();
 const option = {
   socketTimeoutMS: 30000,
