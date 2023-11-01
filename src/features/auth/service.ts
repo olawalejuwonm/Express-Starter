@@ -40,13 +40,13 @@ export default class AuthService {
           data: user,
         };
       }
-      // if (user.email && !user.emailVerified) {
-      //   return {
-      //     success: false,
-      //     message: 'Email not verified',
-      //     data: user,
-      //   };
-      // }
+      if (user.email && !user.emailVerified) {
+        return {
+          success: false,
+          message: 'Email not verified',
+          data: user,
+        };
+      }
       const token = await theUser.generateJWT();
       theUser.lastLogin = new Date();
       theUser.save();
@@ -89,8 +89,6 @@ export default class AuthService {
         }),
         password,
       );
-
-
 
       console.log('user', user._id);
       // if (profile.type === 'artisan')
@@ -195,8 +193,8 @@ export default class AuthService {
     const { email } = body;
     try {
       const user = await UserModel.findOne({
-        email,
-      }).populate('profile profile.createdBy');
+        email: email?.toLowerCase()?.trim(),
+      })
 
       if (!user) {
         return {
@@ -272,8 +270,8 @@ export default class AuthService {
     const { email } = body;
     try {
       const user = await UserModel.findOne({
-        email,
-      }).populate('profile');
+        email: email?.toLowerCase()?.trim(),
+      });
       if (!user) {
         return {
           success: false,
@@ -360,7 +358,6 @@ export default class AuthService {
         TokenType.VerifyPhone,
       );
       const sms = await this.sendSMS(data.phone, theToken);
-      // await AuthTemplates.verifyEmailTemplate(user, theToken);
       return {
         success: true,
         message:
@@ -398,7 +395,7 @@ export default class AuthService {
         {
           new: true,
         },
-      ).populate('profile');
+      )
 
       if (!user) {
         return {

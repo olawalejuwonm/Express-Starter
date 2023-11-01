@@ -125,7 +125,7 @@ doc[authPaths.resetPassword] = {
 };
 
 export class ForgotPasswordDto {
-  @IsNotEmpty()
+  @IsEmail()
   public email!: string;
 }
 
@@ -136,7 +136,13 @@ doc[authPaths.requestResetPassword] = {
 };
 
 export class VerifyEmailResendDto {
-  @IsNotEmpty()
+  @IsEmail(
+    {},
+    {
+      message: 'Email format is invalid',
+
+    },
+  )
   public email!: string;
 }
 

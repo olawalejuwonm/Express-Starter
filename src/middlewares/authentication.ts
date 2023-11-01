@@ -53,7 +53,7 @@ export const authenticator: any = async (
               message: 'Invalid token Decoded',
             };
           }
-          const user = await UserModel.findById(decoded.id).populate('profile');
+          const user = await UserModel.findById(decoded.id)
           if (!user) {
             return {
               success: false,

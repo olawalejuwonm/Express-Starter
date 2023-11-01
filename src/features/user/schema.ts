@@ -66,6 +66,7 @@ import { signJWT } from '../../utilities/jwt';
       source: 'body',
       comment: "This is an email only for the user's login",
       lowercase: true,
+      trim: true,
     })
     email!: string;
 
