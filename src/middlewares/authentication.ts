@@ -53,7 +53,7 @@ export const authenticator: any = async (
               message: 'Invalid token Decoded',
             };
           }
-          const user = await UserModel.findById(decoded.id)
+          const user = await UserModel.findById(decoded.id);
           if (!user) {
             return {
               success: false,
@@ -61,6 +61,7 @@ export const authenticator: any = async (
             };
           }
 
+          req.user = user;
 
           user.lastActive = new Date();
           user.save();
