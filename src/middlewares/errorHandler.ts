@@ -23,7 +23,7 @@ export default function errorHandler(
     return response(
       res,
       aerr.response?.status || 400,
-      aerr.message,
+      (aerr.response?.data as any)?.message || aerr.message,
       aerr.response?.data,
     );
   }
