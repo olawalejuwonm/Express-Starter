@@ -18,7 +18,7 @@ import { checkUserTypes } from '../../middlewares/authentication';
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
-  const perm = throwPermIfError(await canFetchProfiles(req));
+  const perm = throwPermIfError(await canFetchProfile(req));
   const data = throwIfError(
     await UserService.fetchUsers(req.query, {
       ...perm.query,
