@@ -35,6 +35,11 @@ export default function errorHandler(
     'errorHandler ends',
 
   );
+  if (err.name === 'DocumentNotFoundError') {
+    let match = err.message.match(/model \"(\w+)\"/);
+    let profile = match ? match[1] : null;
+    return response(res, 404, `${profile || 'Document'} not found`);
+  }
   // check if error is mongoose VersionError
   if (err.name === 'VersionError') {
     return response(res, 400, 'Multiple updates detected. Please try again');
@@ -45,7 +50,6 @@ export default function errorHandler(
   let error = mongooseErrorHandler(err);
   let enumValues: any = {};
   let errData: any = {};
-  console.log(error.name, 'error 33');
   if (error.name === 'MongooseValidatorError') {
     const error = mongooseErrorHandler(err, {
       messages: {
