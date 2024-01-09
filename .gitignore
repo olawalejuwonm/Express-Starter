@@ -26,3 +26,4 @@ public/docs/**/*
 src/swagger/docs/**/*
 
 tsconfig.tsbuildinfo
+src/swagger/spec.json
