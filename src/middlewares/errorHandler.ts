@@ -12,29 +12,44 @@ export default function errorHandler(
   res: any,
   next: NextFunction,
 ) {
-  console.log("In Error Handler")
+  console.log('In Error Handler');
   if (err.data && err.data?.message) {
-    console.log("Error Data")
+    console.log('Error Data');
     err = err.data;
   }
   if (axios.isAxiosError(err)) {
-    console.log("Axios Error")
+    console.log('Axios Error');
     const aerr: AxiosError = err;
     return response(
       res,
       aerr.response?.status || 400,
-      aerr.message,
+      (aerr.response?.data as any)?.message || aerr.message,
       aerr.response?.data,
     );
   }
-  console.error('errorHandler starts', err.name, { err }, err?.data, 'errorHandler ends', axios.isAxiosError(err));
+  console.error(
+    'errorHandler starts',
+    err.name,
+    { err },
+    err?.data,
+    'errorHandler ends',
+
+  );
+  if (err.name === 'DocumentNotFoundError') {
+    let match = err.message.match(/model \"(\w+)\"/);
+    let profile = match ? match[1] : null;
+    return response(res, 404, `${profile || 'Document'} not found`);
+  }
+  // check if error is mongoose VersionError
+  if (err.name === 'VersionError') {
+    return response(res, 400, 'Multiple updates detected. Please try again');
+  }
   if (err.name === 'DTOValidationError') {
     return response(res, 400, err.message, err);
   }
   let error = mongooseErrorHandler(err);
   let enumValues: any = {};
   let errData: any = {};
-  console.log(error.name, 'error 33');
   if (error.name === 'MongooseValidatorError') {
     const error = mongooseErrorHandler(err, {
       messages: {
@@ -89,8 +104,15 @@ export default function errorHandler(
   if (err.code === 11000) {
     const vars = err.message?.split(':');
     const tableName = vars[1]?.split(' ')[1]?.split('.')[1] || '';
-    const modelName = startCase(pluralize.singular(tableName));
-    const fieldName = vars[2]?.split(' ')[1]?.split('_')[0];
+    let modelName = startCase(pluralize.singular(tableName));
+    let fieldName = vars[2]?.split(' ')[1]?.split('_')[0];
+    if (!modelName) {
+      console.log('In modelName');
+      modelName = startCase(vars[5]?.split(' ')[1]?.split('.')[1]);
+      // field name is in last element of vars array
+      // splitt by "
+      fieldName = vars[vars.length - 2]?.split(' ')[2];
+    }
     return response(res, 400, `${modelName} with the ${fieldName} exists`);
   }
   if (err.message) {

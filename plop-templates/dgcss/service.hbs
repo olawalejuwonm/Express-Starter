@@ -2,7 +2,7 @@ import { QueryOptions, UpdateQuery } from 'mongoose';
 import { QueryReturn, find, findOne } from '../../utilities/query';
 import { Create{{fcapitalize name}}Dto, Update{{fcapitalize name}}Dto } from './dto';
 import { {{fcapitalize name}} } from './schema';
-import { serviceResponseType } from '../../utilities/response';
+import { serviceError, serviceSuccess, serviceResponseType } from '../../utilities/response';
 import { validateDTO } from '../../middlewares/validate';
 import { {{fcapitalize name}}Model } from '../../models';
 
@@ -19,18 +19,9 @@ export default class {{fcapitalize name}}Service {
       else {
       found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries);
       }
-      return {
-        success: true,
-        message: '{{startcase name}}s fetched successfully',
-        data: found{{fcapitalize name}}s,
-        statusCode: 200,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
+      return serviceSuccess(found{{fcapitalize name}}s, '{{startcase name}}s fetched successfully');
+    } catch (error) {
+      return serviceError(error);
     }
   }
 
@@ -41,18 +32,9 @@ export default class {{fcapitalize name}}Service {
     // return await {{fcapitalize name}}Model.create(data);
     try {
       const created{{fcapitalize name}} = await {{fcapitalize name}}Model.create({ ...payload, ...data });
-      return {
-        success: true,
-        message: '{{startcase name}} created successfully',
-        data: created{{fcapitalize name}},
-        statusCode: 201,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
+      return serviceSuccess(created{{fcapitalize name}}, '{{startcase name}} created successfully', 201);
+    } catch (error) {
+      return serviceError(error);
     }
   }
 
@@ -68,18 +50,10 @@ export default class {{fcapitalize name}}Service {
       else {
       found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
       }
-      return {
-        success: true,
-        message: '{{startcase name}} fetched successfully',
-        data: found{{fcapitalize name}},
-        statusCode: 200,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
+      return serviceSuccess(found{{fcapitalize name}}, '{{startcase name}} fetched successfully');
+      
+    } catch (error) {
+      return serviceError(error);
     }
   }
 
@@ -101,25 +75,16 @@ export default class {{fcapitalize name}}Service {
         queries,
         { ...data, ...others },
         options,
-      );
-      if (!updated{{fcapitalize name}}) {
-        throw {
-          message: '{{startcase name}} not found or access denied',
-          statusCode: 404,
-        };
-      }
-      return {
-        success: true,
-        message: '{{startcase name}} updated successfully',
-        data: updated{{fcapitalize name}},
-        statusCode: 200,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
+      ).orFail();
+      // if (!updated{{fcapitalize name}}) {
+      //  throw {
+      //    message: '{{startcase name}} not found or access denied',
+      //    statusCode: 404,
+      //  };
+      return serviceSuccess(updated{{fcapitalize name}}, '{{startcase name}} updated successfully' );
+
+    } catch (error) {
+      return serviceError(error);
     }
   }
 
@@ -147,18 +112,10 @@ export default class {{fcapitalize name}}Service {
           statusCode: 404,
         };
       }
-      return {
-        success: true,
-        message: '{{startcase name}} deleted successfully',
-        data: deleted{{fcapitalize name}},
-        statusCode: 204,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
+      return serviceSuccess(deleted{{fcapitalize name}}, '{{startcase name}} deleted successfully' );
+
+    } catch (error) {
+      return serviceError(error);
     }
   }
 }

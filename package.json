@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@novu/node": "^0.21.0",
-    "@typegoose/typegoose": "^11.6.0",
+    "@typegoose/typegoose": "^11.7.0",
     "axios": "^1.6.0",
     "class-validator": "^0.14.0",
     "cloudinary": "^1.41.0",
@@ -37,7 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "mongoose": "^7.0.0",
+    "mongoose": "7.6.3",
     "mongoose-findorcreate": "^4.0.0",
     "mongoose-id-validator2": "olawalejuwonm/mongoose-id-validator4",
     "mongoose-validation-error-message-handler": "^1.2.9",

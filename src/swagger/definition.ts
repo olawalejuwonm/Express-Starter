@@ -262,13 +262,11 @@ function convertToSingleLineString(multilineText: string = '') {
   const singleLineText = multilineText
     .replace(/"/g, '\\"') // Escape double quotes
     .replace(/\n/g, '\\n\r\\n') // Replace newlines with \n\r\n
-    .replace(/\s+/g, ' ');     // ensure that every thing is in one line
+    .replace(/\s+/g, ' '); // ensure that every thing is in one line
 
   // Wrap the resulting text in double quotes
   return `"${singleLineText}"`;
 }
-
-
 
 const docGen = (docs: IADoc) => {
   if (docs?.description || docs?.schema) {
@@ -325,7 +323,7 @@ export const endpointSpec = (
     // console.log(name, 'name');
     // check if url has params
     const params = url.match(/\/:[a-zA-Z]+/g);
-    // console.log(params, 'params');
+
     let paramDocs = '';
     if (params) {
       // if it has params, replace them with curly braces
@@ -373,22 +371,12 @@ export const endpointSpec = (
 
         compiledDocs += postTemp;
       }
-      if (method === IMethod.GET) {
-        if (paramDocs === '') {
-          paramDocs = ' *     parameters:';
-        }
-        paramDocs += constructTemplate(queryTemplate, {});
 
-        const getTemp = constructTemplate(getTemplate, {
-          name,
-          url,
-          paramDocs,
-          ...docs,
-        });
-        compiledDocs += getTemp;
-        paramDocs = '';
-      }
       if (method === IMethod.PUT) {
+        // if (name === 'circle') {
+        //   console.log('PUT', 'PUT');
+        //   console.log(paramDocs, 'paramDocs');
+        // }
         // console.log(endpoint.path, opath, 'url');
         const putTemp = constructTemplate(putTemplate, {
           name,
@@ -407,8 +395,29 @@ export const endpointSpec = (
         });
         compiledDocs += deleteTemp;
       }
+      // This should be the last because to prevent updating the paramDocs
+      if (method === IMethod.GET) {
+        let paramDocEmpty = false;
+        if (paramDocs === '') {
+          paramDocs = ' *     parameters:';
+          paramDocEmpty = true;
+        }
+        paramDocs += constructTemplate(queryTemplate, {});
+
+        const getTemp = constructTemplate(getTemplate, {
+          name,
+          url,
+          paramDocs,
+          ...docs,
+        });
+        compiledDocs += getTemp;
+        if (paramDocEmpty) {
+          paramDocs = '';
+        }
+      }
       i++;
     }
+
     const filePath = path.join(__dirname, 'docs', `${i + name}.hbs`);
     if (write) writeToFile(compiledDocs, filePath);
   }

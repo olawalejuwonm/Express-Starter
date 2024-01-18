@@ -8,8 +8,8 @@ export type serviceResponseType<T = any> = {
   statusCode?: number;
 };
 
-export const serviceError = (error: any) => {
-  console.error(error);
+export const serviceError = (error: any): serviceResponseType => {
+  // console.error(error);
   return {
     success: false,
     message: error.message,
@@ -20,12 +20,14 @@ export const serviceError = (error: any) => {
 export const serviceSuccess = (
   data: any = null,
   message: string = 'Sucess',
-) => {
+  statusCode: number = 200,
+): serviceResponseType => {
   // console.error(error);
   return {
     success: true,
     message: message,
     data: data,
+    statusCode: statusCode,
   };
 };
 
