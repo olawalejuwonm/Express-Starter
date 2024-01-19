@@ -1,9 +1,11 @@
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { serviceResponseType } from '../utilities/response';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export default class GoogleService {
-  static verifyToken = async (token: string): Promise<serviceResponseType> => {
+  static verifyToken = async (
+    token: string,
+  ): Promise<serviceResponseType<TokenPayload | undefined>> => {
     try {
       const ticket = await googleClient.verifyIdToken({
         idToken: token,

@@ -1,9 +1,29 @@
+import { ReturnModelType, getModelForClass } from '@typegoose/typegoose';
+import {
+  AnyParamConstructor,
+  BeAnObject,
+  IObjectWithTypegooseFunction,
+  ModelType,
+} from '@typegoose/typegoose/lib/types';
 import _ from 'lodash';
 import mongoose, { Model } from 'mongoose';
 import { Document } from 'mongoose';
+import { FindOneReturnType } from './templates/types';
 
 const skippedArrayFields = ['$or'];
-const processOperators = (queryA: any) => {
+const processOperators = (queryA: {
+  [x: string]: any;
+  _select?: string | string[] | undefined;
+  _order?: 'asc' | 'desc' | undefined;
+  _orderBy?: string | undefined;
+  _populate?: string | string[] | undefined;
+  _limit?: string | undefined;
+  _offset?: string | undefined;
+  _page?: string | undefined;
+  _searchBy?: string | string[] | undefined;
+  _keyword?: string | undefined;
+  _filterOnPopulate?: boolean | undefined;
+}) => {
   const query = queryA;
   const operators = ['lt', 'lte', 'gt', 'gte', 'in', 'nin', 'ne', 'eq'];
   operators.forEach((operator) => {
@@ -70,6 +90,20 @@ export type QueryReturn<DT> = {
   totalPages: number;
 };
 
+export type FindQuery = {
+  [x: string]: any;
+  _select?: string | Array<string>;
+  _order?: 'asc' | 'desc';
+  _orderBy?: string;
+  _populate?: string | Array<string>;
+  _limit?: string;
+  _offset?: string;
+  _page?: string;
+  _searchBy?: string | Array<string>;
+  _keyword?: string;
+  _filterOnPopulate?: boolean;
+};
+
 // merge
 // _populate: [ 'createdBy', 'createdBy.colleges', 'createdBy.profile' ]
 // _populate job
@@ -85,9 +119,11 @@ export const mergeQueries = (
           ...query[field],
           ...(Array.isArray(queryB[field]) ? queryB[field] : [queryB[field]]),
         ];
-      }
-      else {
-        query[field] = [query[field], ...(Array.isArray(queryB[field]) ? queryB[field] : [queryB[field]])];
+      } else {
+        query[field] = [
+          query[field],
+          ...(Array.isArray(queryB[field]) ? queryB[field] : [queryB[field]]),
+        ];
       }
       //else turn q
       // query[field] = { ...query[field], ...queryB[field] };
@@ -97,10 +133,10 @@ export const mergeQueries = (
   });
   return query;
 };
-const get = async <DT>(
-  model: Model<DT>,
-  queryA: { [key: string]: string },
-  conditionsA: any = {},
+const get = async <DT extends AnyParamConstructor<any>>(
+  model: ReturnModelType<DT, BeAnObject>,
+  queryA: FindQuery,
+  conditionsA: FindQuery = {},
   multiple = true,
 ) => {
   try {
@@ -115,7 +151,6 @@ const get = async <DT>(
     const searchBy = query._searchBy || conditions._searchBy;
     const keyword = query._keyword || conditions._keyword;
     const skip = (page - 1) * limit;
-
 
     // omit any field in query that's not in the model
 
@@ -144,7 +179,7 @@ const get = async <DT>(
     console.log(query, 'conditions', conditions);
     if (!_.isEmpty(query)) {
       processOperators(query);
-      Object.keys(query).forEach((field: string) => {
+      Object.keys(query).forEach((field: any) => {
         conditions[field] = query[field];
       });
     }
@@ -166,13 +201,16 @@ const get = async <DT>(
       }
       const arrayField = arrayFields[field];
       // const arrayFieldQuery = {};
-      arrayField.forEach((value: any) => {
-        const processedOp = processOperators({
-          [field]: value,
+      if (Array.isArray(arrayField)) {
+        arrayField.forEach((value) => {
+          const processedOp = processOperators({
+            [field]: value,
+          });
+          console.log('processedOp', processedOp);
+          andQueries.push(processedOp);
         });
-        console.log('processedOp', processedOp);
-        andQueries.push(processedOp);
-      });
+      }
+
       // andQueries.push({ [field]: arrayFieldQuery });
     });
 
@@ -180,7 +218,6 @@ const get = async <DT>(
     Object.keys(arrayFields).forEach((field) => {
       delete conditions[field];
     });
-
 
     conditions = {
       ...conditions,
@@ -191,7 +228,7 @@ const get = async <DT>(
         const searchQuery: { [x: number]: any }[] = [];
         searchBy.forEach((field) => {
           // searchQuery[field] = _keyword;
-          searchQuery.push({ [field]: new RegExp(keyword, 'i') });
+          if (keyword) searchQuery.push({ [field]: new RegExp(keyword, 'i') });
         });
         conditions = {
           ...conditions,
@@ -278,29 +315,64 @@ const get = async <DT>(
       console.log('conditions after filtering', conditions);
     }
 
-    console.log(
-      'final condition before query',
-      conditions,
-    );
+    console.log('final condition before query', conditions);
 
     // let q = model[multiple ? 'find' : 'findOne'](conditions);
     // let q: mongoose.Query<DT, DT>;
-    let q: any;
+    let q:
+      | mongoose.QueryWithHelpers<
+          mongoose.IfAny<
+            InstanceType<DT>,
+            any,
+            mongoose.Document<unknown, BeAnObject, InstanceType<DT>> &
+              Omit<mongoose.Require_id<InstanceType<DT>>, 'typegooseName'> &
+              IObjectWithTypegooseFunction
+          >[],
+          mongoose.IfAny<
+            InstanceType<DT>,
+            any,
+            mongoose.Document<unknown, BeAnObject, InstanceType<DT>> &
+              Omit<mongoose.Require_id<InstanceType<DT>>, 'typegooseName'> &
+              IObjectWithTypegooseFunction
+          >,
+          BeAnObject,
+          InstanceType<DT>,
+          'find'
+        >
+      | mongoose.QueryWithHelpers<
+          mongoose.IfAny<
+            InstanceType<DT>,
+            any,
+            mongoose.Document<unknown, BeAnObject, InstanceType<DT>> &
+              Omit<mongoose.Require_id<InstanceType<DT>>, 'typegooseName'> &
+              IObjectWithTypegooseFunction
+          > | null,
+          mongoose.IfAny<
+            InstanceType<DT>,
+            any,
+            mongoose.Document<unknown, BeAnObject, InstanceType<DT>> &
+              Omit<mongoose.Require_id<InstanceType<DT>>, 'typegooseName'> &
+              IObjectWithTypegooseFunction
+          >,
+          BeAnObject,
+          InstanceType<DT>,
+          'findOne'
+        >;
 
     if (multiple) {
       q = model.find(conditions);
     } else {
-      q = model.findOne(conditions);
+      q = model.findOne(conditions) as any;
     }
 
-    console.log("final Populate: ", populate)
+    console.log('final Populate: ', populate);
     if (populate) {
-      if (Array.isArray(populate) && populate.length) {
+      if (Array.isArray(populate)) {
         populate.forEach((field) => {
-          q = q.populate(processPopulate(field));
+          q = (q as any).populate(processPopulate(field));
         });
       } else {
-        q = q.populate(processPopulate(populate));
+        q = (q as any).populate(processPopulate(populate));
       }
     }
     if (select) {
@@ -336,17 +408,23 @@ const get = async <DT>(
     throw new Error('An error occured with your query');
   }
 };
-export const find = async <DT>(
-  model: Model<DT>,
-  query: any,
-  conditions?: object | undefined,
-): Promise<QueryReturn<DT>> => get(model, query, conditions);
 
-export const findOne = async <DT>(
-  model: Model<DT>,
-  query: any,
-  conditions?: object | undefined,
-): Promise<Document<DT> & DT> => get(model, query, conditions, false);
+// <DT extends AnyParamConstructor<any>>
+export const find = async <DT extends AnyParamConstructor<any>>(
+  model: ReturnModelType<DT, BeAnObject>,
+  query: FindQuery,
+  conditions?: FindQuery,
+): Promise<QueryReturn<InstanceType<DT>>> =>
+  get(model, query, conditions) as unknown as QueryReturn<InstanceType<DT>>;
+
+export const findOne = async <DT extends AnyParamConstructor<any>>(
+  model: ReturnModelType<DT, BeAnObject>,
+  query: FindQuery,
+  conditions?: FindQuery,
+): Promise<FindOneReturnType<InstanceType<DT>> | null> =>
+  get(model, query, conditions, false) as unknown as FindOneReturnType<
+    InstanceType<DT>
+  >;
 
 export default {
   find,

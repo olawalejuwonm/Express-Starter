@@ -71,6 +71,12 @@ export default class FileService {
         foundFile = await findOne(FileModel, queries, conditions);
       }
       foundFile = await findOne(FileModel, queries);
+      if (!foundFile) {
+        throw {
+          message: 'File not found or access denied',
+          statusCode: 404,
+        };
+      }
       return {
         success: true,
         message: 'File fetched successfully',

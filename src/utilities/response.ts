@@ -1,15 +1,35 @@
 import { NextFunction, Response } from 'express';
 import { PermType } from '../guards';
 
-export type serviceResponseType<T = any> = {
-  success: boolean;
+type SuccessResponseType<T> = {
+  success: true;
   message: string;
   data: T;
   statusCode?: number;
 };
 
-export const serviceError = (error: any): serviceResponseType => {
-  // console.error(error);
+type ErrorResponseType = {
+  success: false;
+  message: string;
+  data: serviceErrorType;
+  statusCode?: number;
+};
+
+export type serviceResponseType<T> = SuccessResponseType<T> | ErrorResponseType;
+
+// export type serviceResponseType<T> = {
+//   success: boolean;
+//   message: string;
+//   data: T;
+//   statusCode?: number;
+// };
+
+type serviceErrorType = {
+  message: string;
+  [key: string]: any;
+};
+
+export const serviceError = (error: serviceErrorType): ErrorResponseType => {
   return {
     success: false,
     message: error.message,
@@ -17,18 +37,28 @@ export const serviceError = (error: any): serviceResponseType => {
   };
 };
 
-export const serviceSuccess = (
-  data: any = null,
+export const serviceSuccess = <T>(
+  data: T,
   message: string = 'Sucess',
   statusCode: number = 200,
-): serviceResponseType => {
-  // console.error(error);
+): SuccessResponseType<T> => {
   return {
     success: true,
     message: message,
     data: data,
     statusCode: statusCode,
   };
+};
+
+export const serviceWrapper = async <T>(
+  fn: () => Promise<T>,
+): Promise<serviceResponseType<T>> => {
+  try {
+    const data = await fn();
+    return serviceSuccess(data);
+  } catch (error) {
+    return serviceError(error);
+  }
 };
 
 export default <T = any>(
@@ -43,18 +73,16 @@ export default <T = any>(
   });
 };
 
-export const throwIfError = <MT = any>(
+export const throwIfError = <MT>(
   fn: serviceResponseType<MT>,
   next?: NextFunction,
-): serviceResponseType<MT> & {
+): SuccessResponseType<MT> & {
   statusCode: number;
 } => {
-  console.log(fn, 'fn data');
-
   if (fn.success === false) {
     let data: serviceResponseType<MT> = {
       success: false,
-      message: fn.message,
+      message: fn.message || 'Error',
       data: null as any,
       statusCode: fn.statusCode || 400,
     };
@@ -66,7 +94,11 @@ export const throwIfError = <MT = any>(
     throw data;
   }
 
-  let data = {
+  let data: SuccessResponseType<MT> & {
+    statusCode: number;
+  };
+
+  data = {
     success: true,
     message: fn.message || 'Success',
     data: fn.data,

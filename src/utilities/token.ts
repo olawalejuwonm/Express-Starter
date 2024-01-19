@@ -3,6 +3,7 @@ import { TokenModel } from '../models';
 import { Token, TokenType } from '../models/token';
 import { createRandomNumbers, createHex } from './index';
 import { serviceError, serviceResponseType, serviceSuccess } from './response';
+import { FindOneReturnType } from './templates/types';
 
 export const genToken = async (
   user: UserType,
@@ -91,7 +92,7 @@ export const verifyToken = async (
 
 export const tokenValid = async (
   token: string,
-): Promise<serviceResponseType> => {
+): Promise<serviceResponseType<FindOneReturnType<Token>>> => {
   try {
     const tokenData = await TokenModel.findOne({ token });
     if (!tokenData || tokenData.expired) {

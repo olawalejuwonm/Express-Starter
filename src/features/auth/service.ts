@@ -8,7 +8,7 @@ import {
   VerifyEmailResendDto,
   VerifyToken,
 } from './dto';
-import { serviceResponseType } from '../../utilities/response';
+import { serviceError, serviceResponseType } from '../../utilities/response';
 import { genToken, saveToken, verifyToken } from '../../utilities/token';
 import AuthTemplates, {
   resetPasswordTemplate,
@@ -17,9 +17,15 @@ import { UserModel } from '../../models';
 import axios from 'axios';
 import { validateDTO } from '../../middlewares/validate';
 import { TokenType } from '../../models/token';
-import { AllUserType, UserType } from '../user/schema';
+import { AllUserType, User, UserType } from '../user/schema';
+import { FindOneReturnType } from '../../utilities/templates/types';
 export default class AuthService {
-  static async login(data: LoginDto): Promise<serviceResponseType> {
+  static async login(data: LoginDto): Promise<
+    serviceResponseType<{
+      user: UserType;
+      token: string;
+    }>
+  > {
     try {
       const { user, error } = await UserModel.authenticate()(
         data.username,
@@ -65,7 +71,12 @@ export default class AuthService {
     }
   }
 
-  static async register(data: RegisterDto): Promise<serviceResponseType> {
+  static async register(data: RegisterDto): Promise<
+    serviceResponseType<{
+      user: UserType;
+      token: string;
+    }>
+  > {
     try {
       const { email, password } = data;
 
@@ -75,11 +86,12 @@ export default class AuthService {
       });
 
       if (userWithPhone) {
-        return {
-          success: false,
-          message: 'A user with this phone number already exists',
-          data: null,
-        };
+        // return {
+        //   success: false,
+        //   message: 'A user with this phone number already exists',
+        //   data: null,
+        // };
+        throw new Error('A user with this phone number already exists');
       }
 
       const user = await UserModel.register(
@@ -96,7 +108,7 @@ export default class AuthService {
 
       return {
         success: true,
-        message: 'User created successfully',
+        message: 'Account created successfully',
         data: { user, token: await user.generateJWT() },
       };
     } catch (error) {
@@ -111,7 +123,7 @@ export default class AuthService {
   static async changePassword(
     body: ChangePasswordDto,
     user: UserType,
-  ): Promise<serviceResponseType> {
+  ): Promise<serviceResponseType<UserType>> {
     try {
       const { oldPassword, newPassword } = body;
       const theuser = user as AllUserType;
@@ -146,30 +158,23 @@ export default class AuthService {
 
   static async resetPassword(
     body: ResetPasswordDto,
-  ): Promise<serviceResponseType> {
+  ): Promise<serviceResponseType<AllUserType>> {
     const { token, newPassword } = body;
     try {
       const emailVerify = await verifyToken(token, TokenType.ResetPassword);
 
       if (!emailVerify.valid) {
-        return {
-          success: false,
-          message: 'Invalid token',
-          data: emailVerify,
-        };
+        // return {
+        //   success: false,
+        //   message: 'Invalid token',
+        //   data: emailVerify,
+        // };
+        throw new Error('Invalid token');
       }
       const { userId } = emailVerify;
-      const user = (await UserModel.findById(userId).populate(
-        'profile',
-      )) as AllUserType | null;
-      if (!user) {
-        return {
-          success: false,
-          message: 'User not found',
-          data: user,
-        };
-      }
-      // await user.resetAttempts();
+      const user = (await UserModel.findById(userId)
+        .populate('profile')
+        .orFail()) as AllUserType;
       await user.setPassword(newPassword);
       await user.save();
       await AuthTemplates.passwordResetConfirmationTemplate(user);
@@ -189,20 +194,21 @@ export default class AuthService {
 
   static async requestResetPassword(
     body: ForgotPasswordDto,
-  ): Promise<serviceResponseType> {
+  ): Promise<serviceResponseType<null>> {
     const { email } = body;
     try {
       const user = await UserModel.findOne({
         email: email?.toLowerCase()?.trim(),
-      })
+      });
 
       if (!user) {
-        return {
-          success: false,
-          message: 'User not found',
-          data: user,
-          statusCode: 404,
-        };
+        // return {
+        //   success: false,
+        //   message: 'User not found',
+        //   data: user,
+        //   statusCode: 404,
+        // };
+        throw new Error('User not found');
       }
 
       const theToken = await genToken(user, 'User', 'reset-password');
@@ -211,7 +217,7 @@ export default class AuthService {
       return {
         success: true,
         message:
-          'If an account with this email exists, an email has been sent to you.',
+          'An email has been sent to you with instructions on how to reset your password',
         data: null,
       };
     } catch (error) {
@@ -223,13 +229,14 @@ export default class AuthService {
     }
   }
 
-  static async verifyEmailAccount(body: VerifyToken) {
+  static async verifyEmailAccount(
+    body: VerifyToken,
+  ): Promise<serviceResponseType<FindOneReturnType<User>>> {
     try {
       const { token } = body;
 
       const theToken = await verifyToken(token, TokenType.VerifyEmail);
       if (!theToken.valid) {
-        // return response(res, 401, theToken.message);
         return {
           success: false,
           message: theToken.message,
@@ -237,17 +244,13 @@ export default class AuthService {
         };
       }
       const { userId } = theToken;
-      const user = await UserModel.findById(userId);
-      // const referral = await createReferral(userId, user.referredBy);
       const theUser = await UserModel.findByIdAndUpdate(
         userId,
         {
-          // referralCode,
-          // referral: referral._id,
           emailVerified: true,
         },
         { strict: false, new: true, runValidators: true },
-      );
+      ).orFail();
 
       return {
         success: true,
@@ -256,36 +259,42 @@ export default class AuthService {
         statusCode: 200,
       };
     } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        data: error,
-      };
+      // return {
+      //   success: false,
+      //   message: error.message,
+      //   data: error,
+      // };
+      return serviceError(error);
     }
   }
 
+  //TODO: Use rate limiter
   static async sendVerificationEmail(
     body: VerifyEmailResendDto,
-  ): Promise<serviceResponseType> {
+  ): Promise<serviceResponseType<null>> {
     const { email } = body;
     try {
       const user = await UserModel.findOne({
         email: email?.toLowerCase()?.trim(),
       });
       if (!user) {
-        return {
-          success: false,
-          message:
-            'If an account with this email exists, an email has been sent to you.',
-          data: null,
-        };
+        // return {
+        //   success: false,
+        //   message:
+        //     'No user with this email exists. Please check the email and try again',
+        //   data: null,
+        // };
+        throw new Error(
+          'No user with this email exists. Please check the email and try again',
+        );
       }
       if (user.emailVerified) {
-        return {
-          success: false,
-          message: 'Account already verified',
-          data: user,
-        };
+        // return {
+        //   success: false,
+        //   message: 'Account already verified',
+        //   data: null,
+        // };
+        throw new Error('Account already verified');
       }
       const theToken = await genToken(user, 'User', 'verify-email');
       await AuthTemplates.verifyEmailTemplate(user, theToken);
@@ -332,25 +341,27 @@ export default class AuthService {
 
   static async sendPhoneVerification(
     data: RequestPhoneVerificationDto,
-  ): Promise<serviceResponseType> {
+  ): Promise<serviceResponseType<null>> {
     try {
       validateDTO(RequestPhoneVerificationDto, data);
       const user = await UserModel.findOne({
         phone: data.phone,
       });
       if (!user) {
-        return {
-          success: false,
-          message: 'No user with this phone number',
-          data: null,
-        };
+        // return {
+        //   success: false,
+        //   message: 'No user with this phone number',
+        //   data: null,
+        // };
+        throw new Error('No user with this phone number');
       }
       if (user.phoneVerified) {
-        return {
-          success: false,
-          message: 'Phone number already verified',
-          data: null,
-        };
+        // return {
+        //   success: false,
+        //   message: 'Phone number already verified',
+        //   data: null,
+        // };
+        throw new Error('Phone number already verified');
       }
       const theToken: string = await saveToken(
         4,
@@ -363,6 +374,7 @@ export default class AuthService {
         message:
           'Please enter the code sent to your phone number to verify your account',
         data: sms,
+        statusCode: 200,
       };
     } catch (error) {
       return {
@@ -373,7 +385,12 @@ export default class AuthService {
     }
   }
 
-  static async verifyPhone(token: string) {
+  static async verifyPhone(token: string): Promise<
+    serviceResponseType<{
+      user: FindOneReturnType<User>;
+      token: string;
+    }>
+  > {
     try {
       const theToken = await verifyToken(token, TokenType.VerifyPhone);
 
@@ -395,14 +412,15 @@ export default class AuthService {
         {
           new: true,
         },
-      )
+      );
 
       if (!user) {
-        return {
-          success: false,
-          message: 'User not found',
-          data: null,
-        };
+        // return {
+        //   success: false,
+        //   message: 'User not found',
+        //   data: null,
+        // };
+        throw new Error('User not found');
       }
 
       return {
