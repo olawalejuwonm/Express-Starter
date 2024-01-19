@@ -1,5 +1,10 @@
 import express, { Request, Response } from 'express';
-import { canCreate{{fcapitalize name}}, canDelete{{fcapitalize name}}, canFetch{{fcapitalize name}}, canUpdate{{fcapitalize name}} } from './guard';
+import {
+  canCreate{{fcapitalize name}},
+  canDelete{{fcapitalize name}},
+  canFetch{{fcapitalize name}},
+  canUpdate{{fcapitalize name}},
+} from './guard';
 import {{fcapitalize name}}Service from './service';
 import response, {
   throwIfError,
@@ -8,20 +13,18 @@ import response, {
 import { validateDTO } from '../../middlewares/validate';
 import { Create{{fcapitalize name}}Dto, Update{{fcapitalize name}}Dto } from './dto';
 
-
 const router = express.Router();
 
 router.post('/', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canCreate{{fcapitalize name}}(req, true));
   const payload = validateDTO(Create{{fcapitalize name}}Dto, req.body);
   const content = throwIfError(
-    await {{fcapitalize name}}Service.create(payload, { 
-      ...perm.query
-     }),
+    await {{fcapitalize name}}Service.create(payload, {
+      ...perm.query,
+    }),
   );
   return response(res, content.statusCode, content.message, content.data);
 });
-
 
 router.get('/', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canFetch{{fcapitalize name}}(req, false));
@@ -32,7 +35,6 @@ router.get('/', async (req: Request, res: Response) => {
   );
   return response(res, content.statusCode, content.message, content.data);
 });
-
 
 router.get('/:id', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canFetch{{fcapitalize name}}(req, false));
@@ -45,7 +47,6 @@ router.get('/:id', async (req: Request, res: Response) => {
   return response(res, content.statusCode, content.message, content.data);
 });
 
-
 router.put('/:id', async (req: Request, res: Response) => {
   const body = validateDTO(Update{{fcapitalize name}}Dto, req.body);
 
@@ -55,7 +56,6 @@ router.put('/:id', async (req: Request, res: Response) => {
   );
   return response(res, content.statusCode, content.message, content.data);
 });
-
 
 router.delete('/:id', async (req: Request, res: Response) => {
   const perm = throwPermIfError(await canDelete{{fcapitalize name}}(req, false));

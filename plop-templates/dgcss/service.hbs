@@ -1,23 +1,26 @@
 import { QueryOptions, UpdateQuery } from 'mongoose';
-import { QueryReturn, find, findOne } from '../../utilities/query';
+import { FindQuery, QueryReturn, find, findOne } from '../../utilities/query';
 import { Create{{fcapitalize name}}Dto, Update{{fcapitalize name}}Dto } from './dto';
 import { {{fcapitalize name}} } from './schema';
-import { serviceError, serviceSuccess, serviceResponseType } from '../../utilities/response';
-import { validateDTO } from '../../middlewares/validate';
+import {
+  serviceError,
+  serviceSuccess,
+  serviceResponseType,
+} from '../../utilities/response';
 import { {{fcapitalize name}}Model } from '../../models';
+import { FindOneReturnType } from '../../utilities/templates/types';
 
 export default class {{fcapitalize name}}Service {
   static async fetch(
-    queries: { [key: string]: any },
-    conditions: {} | undefined = undefined,
-  ): Promise<serviceResponseType> {
+    queries: FindQuery,
+    conditions: FindQuery | undefined = undefined,
+  ): Promise<serviceResponseType<QueryReturn<{{fcapitalize name}}>>> {
     try {
       let found{{fcapitalize name}}s;
       if (conditions) {
         found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries, conditions);
-      }
-      else {
-      found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries);
+      } else {
+        found{{fcapitalize name}}s = await find({{fcapitalize name}}Model, queries);
       }
       return serviceSuccess(found{{fcapitalize name}}s, '{{startcase name}}s fetched successfully');
     } catch (error) {
@@ -39,19 +42,23 @@ export default class {{fcapitalize name}}Service {
   }
 
   static async fetchOne(
-    queries: { [key: string]: any },
-    conditions: {} | undefined = undefined,
-  ): Promise<serviceResponseType> {
+    queries: FindQuery,
+    conditions: FindQuery | undefined = undefined,
+  ): Promise<serviceResponseType<FindOneReturnType<{{fcapitalize name}}>>> {
     try {
       let found{{fcapitalize name}};
       if (conditions) {
         found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, conditions);
+      } else {
+        found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
       }
-      else {
-      found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
+      if (!found{{fcapitalize name}}) {
+        throw {
+          message: '{{startcase name}} not found or access denied',
+          statusCode: 404,
+        };
       }
       return serviceSuccess(found{{fcapitalize name}}, '{{startcase name}} fetched successfully');
-      
     } catch (error) {
       return serviceError(error);
     }
@@ -59,7 +66,7 @@ export default class {{fcapitalize name}}Service {
 
   static async updateOne(
     queries: { [key: string]: any; _id: string },
-    data: Partial< Update{{fcapitalize name}}Dto>,
+    data: Partial<Update{{fcapitalize name}}Dto>,
     others: UpdateQuery<{{fcapitalize name}}> & Partial<{{fcapitalize name}}> = {},
     options: QueryOptions = { new: true, runValidators: true },
   ): Promise<serviceResponseType<{{fcapitalize name}} | null>> {
@@ -76,13 +83,7 @@ export default class {{fcapitalize name}}Service {
         { ...data, ...others },
         options,
       ).orFail();
-      // if (!updated{{fcapitalize name}}) {
-      //  throw {
-      //    message: '{{startcase name}} not found or access denied',
-      //    statusCode: 404,
-      //  };
-      return serviceSuccess(updated{{fcapitalize name}}, '{{startcase name}} updated successfully' );
-
+      return serviceSuccess(updated{{fcapitalize name}}, '{{startcase name}} updated successfully');
     } catch (error) {
       return serviceError(error);
     }
@@ -112,8 +113,7 @@ export default class {{fcapitalize name}}Service {
           statusCode: 404,
         };
       }
-      return serviceSuccess(deleted{{fcapitalize name}}, '{{startcase name}} deleted successfully' );
-
+      return serviceSuccess(deleted{{fcapitalize name}}, '{{startcase name}} deleted successfully');
     } catch (error) {
       return serviceError(error);
     }

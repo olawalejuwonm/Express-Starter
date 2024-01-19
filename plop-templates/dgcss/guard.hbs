@@ -3,8 +3,10 @@ import { GuardFunction } from '../../guards';
 import { FilterQuery } from 'mongoose';
 import { {{fcapitalize name}} } from './schema';
 
-
-export const canCreate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
+export const canCreate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (
+  req,
+  exec,
+) => {
   try {
     await checkUserTypesService(req, ['super']);
     // throw new Error('Not implemented');
@@ -12,7 +14,7 @@ export const canCreate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapital
       auth: true,
       message: 'Can create {{fcapitalize name}}',
       query: {
-        createdBy: req.user._id
+        createdBy: req.user._id,
       },
     };
   } catch (error) {
@@ -24,7 +26,10 @@ export const canCreate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapital
   }
 };
 
-export const canFetch{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
+export const canFetch{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (
+  req,
+  exec,
+) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -41,7 +46,10 @@ export const canFetch{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitali
   }
 };
 
-export const canUpdate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
+export const canUpdate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (
+  req,
+  exec,
+) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
@@ -58,7 +66,10 @@ export const canUpdate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapital
   }
 };
 
-export const canDelete{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (req, exec) => {
+export const canDelete{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapitalize name}}>> = async (
+  req,
+  exec,
+) => {
   try {
     await checkUserTypesService(req, ['super']);
     return {
