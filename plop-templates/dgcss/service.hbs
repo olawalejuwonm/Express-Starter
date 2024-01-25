@@ -8,7 +8,7 @@ import {
   serviceResponseType,
 } from '../../utilities/response';
 import { {{fcapitalize name}}Model } from '../../models';
-import { FindOneReturnType } from '../../utilities/templates/types';
+import { FindOneReturnType, DeletedResultType, CreateReturnType } from '../../utilities/templates/types';
 
 export default class {{fcapitalize name}}Service {
   static async fetch(
@@ -31,7 +31,7 @@ export default class {{fcapitalize name}}Service {
   static async create(
     payload: Create{{fcapitalize name}}Dto,
     data: Partial<{{fcapitalize name}}> = {},
-  ): Promise<serviceResponseType<{{fcapitalize name}}>> {
+  ): Promise<serviceResponseType<CreateReturnType<{{fcapitalize name}}>>> {
     // return await {{fcapitalize name}}Model.create(data);
     try {
       const created{{fcapitalize name}} = await {{fcapitalize name}}Model.create({ ...payload, ...data });
@@ -69,7 +69,7 @@ export default class {{fcapitalize name}}Service {
     data: Partial<Update{{fcapitalize name}}Dto>,
     others: UpdateQuery<{{fcapitalize name}}> & Partial<{{fcapitalize name}}> = {},
     options: QueryOptions = { new: true, runValidators: true },
-  ): Promise<serviceResponseType<{{fcapitalize name}} | null>> {
+  ): Promise<serviceResponseType<FindOneReturnType<{{fcapitalize name}}>>> {
     try {
       // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
       // if (!found{{fcapitalize name}}) {
@@ -91,8 +91,8 @@ export default class {{fcapitalize name}}Service {
 
   static async deleteOne(
     id: string,
-    queries: { [key: string]: any },
-  ): Promise<serviceResponseType<{{fcapitalize name}} | null>> {
+    queries: FindQuery,
+  ): Promise<serviceResponseType<DeletedResultType<{{fcapitalize name}}>>> {
     try {
       // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, {
       //   _id: id,
