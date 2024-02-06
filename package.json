@@ -86,7 +86,14 @@
     "supertest": "^6.3.4",
     "typescript": "^5.3.3"
   },
+  "author": {
+    "name": "Olawale Micheal Juwon",
+    "email": "olawalejuwon@gmail.com"
+  },
   "contributors": [
-    "Olawale Micheal Juwon <olawalejuwon@gmail.com>"
+    {
+      "email": "olawalejuwon@gmail.com",
+      "name": "Olawale Micheal Juwon"
+    }
   ]
 }
