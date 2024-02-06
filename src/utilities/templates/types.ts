@@ -5,7 +5,7 @@ import {
   IObjectWithTypegooseFunction,
 } from '@typegoose/typegoose/lib/types';
 import { serviceResponseType } from '../response';
-import { Document, Types } from 'mongoose';
+import { Document, ModifyResult, Types } from 'mongoose';
 
 // export type ITemplate = Promise<serviceResponseType>;
 
