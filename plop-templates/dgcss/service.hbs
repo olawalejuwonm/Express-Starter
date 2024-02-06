@@ -92,7 +92,7 @@ export default class {{fcapitalize name}}Service {
   static async deleteOne(
     id: string,
     queries: FindQuery,
-  ): Promise<serviceResponseType<DeletedResultType<{{fcapitalize name}}>>> {
+  ): Promise<serviceResponseType<FindOneReturnType<{{fcapitalize name}}>>> {
     try {
       // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, {
       //   _id: id,
