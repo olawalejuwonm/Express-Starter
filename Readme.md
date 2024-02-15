@@ -2,7 +2,8 @@
 - Don't allow previous password usage
 - Lock account for multiple attempts
 - Upload route for each feature
-
+- Update plop to include creating subModule
+- plop file should be feature.controller and the service should be createFeature etc
 
 ## To start
 - Delete unused code
