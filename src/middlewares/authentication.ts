@@ -181,8 +181,10 @@ export const authenticateCheck = async (req: Request) => {
   }
   throw new Error(authenticated?.message);
 };
+type userTypes = `${UserTypes}`;
+
 export const checkUserTypes =
-  (types: string[]) =>
+  (types: userTypes[]) =>
   async (
     req: any,
     res: Response<any, Record<string, any>>,
@@ -208,7 +210,6 @@ export const checkUserTypes =
     }
   };
 
-type userTypes = `${UserTypes}`;
 // write the above as a service
 export const checkUserTypesService = async (
   req: Request,
