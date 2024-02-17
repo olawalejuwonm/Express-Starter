@@ -17,6 +17,7 @@ node_modules
 .flaskenv*
 !.env.project
 !.env.vault
+!.env.example
 app.todo
 package-lock.json
 yarn.lock
