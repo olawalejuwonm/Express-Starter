@@ -56,7 +56,6 @@
     "passport-local-mongoose": "^8.0.0",
     "pino": "^8.18.0",
     "pluralize": "^8.0.0",
-    "popurelate": "^0.0.7",
     "qrcode": "^1.5.3",
     "slugify": "^1.6.6",
     "swagger-jsdoc": "^6.2.8",
