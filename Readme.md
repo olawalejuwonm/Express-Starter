@@ -1,3 +1,14 @@
+Awesome Template for Bootstrapping Nodejs Express API.
+Follows a domain driven architecture
+
+# Features
+- TEMPLATE GENERATOR
+- Auth Setup
+- Swagger Auto Config
+- Notifications
+- User Profile
+
+
 #TODO
 - Don't allow previous password usage
 - Lock account for multiple attempts
