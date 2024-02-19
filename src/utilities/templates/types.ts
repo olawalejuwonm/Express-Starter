@@ -9,9 +9,6 @@ import { Document, ModifyResult, Types } from 'mongoose';
 
 // export type ITemplate = Promise<serviceResponseType>;
 
-// export type Prettify<T> = {
-//   [K in keyof T]: T[K];
-// } & {};
 
 export type CreateReturnType<DT> = Document<unknown, BeAnObject, DT> &
   Omit<
