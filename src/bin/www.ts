@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 
+import 'dotenv/config';
 import debugServer from 'debug';
 import { createServer } from 'http';
 import app from '../index';
