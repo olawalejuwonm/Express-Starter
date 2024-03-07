@@ -32,7 +32,6 @@ const getFullRoute = (
       // return [...getFullRoute(path.resolve(resolvedPath, file), format), ...fullRoutedirs];
     } else {
       // if it is a file, push it to the array
-      // console.log(file, 'file', format, 'format', file.endsWith(format));
       if (file.endsWith(format)) {
         fullRoutedirs.push(path.resolve(dir, file));
       }
@@ -80,14 +79,12 @@ const gernerateDTOSchema = (ALLDTO: any) => {
 
 // function that import files dynamically
 function importEsALL(paths: string[]) {
-  // console.log(paths, 'paths');
   let allFiles: any = {};
   try {
     paths.map(async (fileName) => {
       let fileResolved = path.resolve(fileName);
 
       const module = require(fileResolved);
-      // console.log(module, 'module');
 
       const resolvedname = fileResolved.split('dto.ts')[0];
 
@@ -103,7 +100,6 @@ function importEsALL(paths: string[]) {
         const match = regex.exec(resolvedname);
         name = match?.[1] ?? '';
       }
-      // console.log(name, 'name');
       allFiles[name] = module;
     });
   } catch (e) {
@@ -116,7 +112,6 @@ function importEsALL(paths: string[]) {
 }
 
 const featuresPath = path.join(__dirname, '../features');
-console.log(featuresPath, 'featuresPath');
 
 const dtoPattern = 'dto.ts';
 
@@ -209,7 +204,7 @@ const writeToFile = (
 ) => {
   try {
     if (content === '') {
-      console.log('content is empty' + filePath);
+      // console.log('content is empty' + filePath);
       return;
     }
     // console.log(filePath, 'filePath', content, 'content');
@@ -312,7 +307,6 @@ export const endpointSpec = (
       }
     }
   for (const endpoint of endpoints) {
-    // console.log(endpoint, 'endpoint');
     const methods = endpoint.methods;
     const endpointpath = endpoint.path;
     // url is the remaining part after basePath
@@ -320,7 +314,6 @@ export const endpointSpec = (
     let endUrl = url;
     // name is string after the first slash
     const name = url.split('/')[1];
-    // console.log(name, 'name');
     // check if url has params
     const params = url.match(/\/:[a-zA-Z]+/g);
 
@@ -337,7 +330,6 @@ export const endpointSpec = (
       });
     }
     if (compiledHeader) {
-      // console.log('compiledHeader', compiledHeader);
       if (paramDocs === '') {
         paramDocs = ' *     parameters:';
       }
@@ -349,7 +341,6 @@ export const endpointSpec = (
     }
     let compiledDocs = '';
     for (const method of methods) {
-      // console.log(method, 'method');
       // Remove name from url
       const opath = endUrl.replace('/' + name, '');
       let docs =
@@ -373,11 +364,6 @@ export const endpointSpec = (
       }
 
       if (method === IMethod.PUT) {
-        // if (name === 'circle') {
-        //   console.log('PUT', 'PUT');
-        //   console.log(paramDocs, 'paramDocs');
-        // }
-        // console.log(endpoint.path, opath, 'url');
         const putTemp = constructTemplate(putTemplate, {
           name,
           url,

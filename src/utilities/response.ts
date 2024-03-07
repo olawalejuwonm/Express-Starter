@@ -1,6 +1,15 @@
 import { NextFunction, Response } from 'express';
 import { PermType } from '../guards';
 
+type serviceErrorType<T> =
+  | {
+      message: string;
+      [key: string]: any;
+    }
+  | (T & {
+      message: string;
+    });
+
 type SuccessResponseType<T> = {
   success: true;
   message: string;
@@ -8,28 +17,21 @@ type SuccessResponseType<T> = {
   statusCode?: number;
 };
 
-type ErrorResponseType = {
+type ErrorResponseType<T> = {
   success: false;
   message: string;
-  data: serviceErrorType;
+  data: serviceErrorType<T>;
   statusCode?: number;
 };
 
-export type serviceResponseType<T> = SuccessResponseType<T> | ErrorResponseType;
+export type serviceResponseType<T = any> =
+  | SuccessResponseType<T>
+  | ErrorResponseType<T>;
 
-// export type serviceResponseType<T> = {
-//   success: boolean;
-//   message: string;
-//   data: T;
-//   statusCode?: number;
-// };
 
-type serviceErrorType = {
-  message: string;
-  [key: string]: any;
-};
-
-export const serviceError = (error: serviceErrorType): ErrorResponseType => {
+export const serviceError = <T>(
+  error: serviceErrorType<T>,
+): ErrorResponseType<T> => {
   return {
     success: false,
     message: error.message,
