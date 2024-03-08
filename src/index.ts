@@ -46,43 +46,44 @@ app.use(morgan('combined'));
 app.use(helmet()); // For security
 
 app.use(`${process.env.BASE_PATH}`, router);
-if (process.env.NODE_ENV !== 'production') {
-  const routes = listEndpoints(app);
 
-  // morgan Body don't log
-  // morganBody(app, {
-  //   skip: () => false,
-  // });
-  app.get('/endpoints', (req: Request, res: Response) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.send(`
+const isProd = process.env.NODE_ENV === 'production'
+const routes = listEndpoints(app);
+const swaggerPath = isProd ? '/swagger-prod' : '/swagger'
+const endpointPath = isProd ? '/endpoints-prod' : '/endpoints'
+// morgan Body don't log
+// morganBody(app, {
+//   skip: () => false,
+// });
+app.get(endpointPath, (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`
     <html>
     <p>API endpoints</p>
     <table><tbody>${routes.map(
-      (route: { methods: any; path: any }) =>
-        `<tr><td><strong>${route.methods.join()}</strong></td><td>${
-          route.path
-        }</td></tr>`,
-    )}</tbody></table> </html>`);
-  });
-  app.use(
-    '/swagger',
-    swaggerUi.serve,
-    swaggerUi.setup(endpointSpec(routes), {
-      explorer: true,
-      swaggerOptions: {
-        // https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
-        displayRequestDuration: true,
-        filter: true,
-        tryItOutEnabled: true,
-        persistAuthorization: true,
-        // deepLinking: true,
-        docExpansion: 'none',
-        // maxDisplayedTags: 5,
-      },
-    }),
-  );
-}
+    (route: { methods: any; path: any }) =>
+      `<tr><td><strong>${route.methods.join()}</strong></td><td>${route.path
+      }</td></tr>`,
+  )}</tbody></table> </html>`);
+});
+app.use(
+  swaggerPath,
+  swaggerUi.serve,
+  swaggerUi.setup(endpointSpec(routes), {
+    explorer: true,
+    swaggerOptions: {
+      // https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
+      displayRequestDuration: true,
+      filter: true,
+      tryItOutEnabled: true,
+      persistAuthorization: true,
+      // deepLinking: true,
+      docExpansion: 'none',
+      // maxDisplayedTags: 5,
+    },
+  }),
+);
+
 
 // render spec.json
 app.get('/swagger.json', (req: Request, res: Response) => {
