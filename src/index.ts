@@ -14,7 +14,27 @@ import cors from 'cors';
 import { endpointSpec } from './swagger/definition';
 import * as fs from 'fs';
 import * as path from 'path';
+import webhookRouter from './routes/webhookRouter';
+import mongoose from 'mongoose';
+import { ip, ipv6 } from 'address';
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginExpress from '@bugsnag/plugin-express';
 
+let bug_middeleware:
+  | {
+      errorHandler: express.ErrorRequestHandler;
+      requestHandler: express.RequestHandler;
+    }
+  | undefined;
+if (process.env.BUG_SNAG) {
+  Bugsnag.start({
+    apiKey: process.env.BUG_SNAG,
+    plugins: [BugsnagPluginExpress],
+  });
+  bug_middeleware = Bugsnag.getPlugin('express');
+} else {
+  console.warn('Bugsnag not configured');
+}
 const listEndpoints = require('express-list-endpoints');
 
 const app: Application = express();
@@ -24,6 +44,7 @@ app.use(cors());
 seed();
 
 app.use('/static', express.static('public'));
+app.use('/api/v1/web', webhookRouter);
 
 app.use(express.json());
 
@@ -45,9 +66,9 @@ morganBody(app, {
 app.use(morgan('combined'));
 app.use(helmet()); // For security
 
-app.use(`${process.env.BASE_PATH}`, router);
+app.use('/api/v1', router);
 
-const isProd = process.env.NODE_ENV === 'production'
+const isProd = process.env.NODE_ENV !== 'development'
 const routes = listEndpoints(app);
 const swaggerPath = isProd ? '/swagger-prod' : '/swagger'
 const endpointPath = isProd ? '/endpoints-prod' : '/endpoints'
@@ -92,13 +113,54 @@ app.get('/swagger.json', (req: Request, res: Response) => {
     fs.readFileSync(path.resolve(__dirname, './swagger/spec.json'), 'utf8'),
   );
 });
+const healthCheck = () => {
+  const state = mongoose.connection.readyState;
+  let connectionStatus;
+  switch (state) {
+    case 0:
+      connectionStatus = 'disconnected';
+      break;
+    case 1:
+      connectionStatus = 'connected';
+      break;
+    case 2:
+      connectionStatus = 'connecting';
+      break;
+    case 3:
+      connectionStatus = 'disconnecting';
+      break;
+    case 99:
+      connectionStatus = 'uninitialized';
+    default:
+      connectionStatus = 'unknown';
+      break;
+  }
+  return {
+    status: 'ok',
+    message: 'Server is running',
+    database: {
+      status: connectionStatus,
+    },
+    ip: {
+      ipv4: ip(),
+      ipv6: ipv6(),
+    },
+    documentationUrl: '/static/docs/',
+  };
+};
+
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json(healthCheck());
+});
 
 app.all('*', (req: Request, res: Response) => {
   res.status(404).json({
     message: 'Endpoint not found',
-    error: ['endpoint does not exist'],
+    data: healthCheck(),
   });
 });
+
+if (bug_middeleware) app.use(bug_middeleware.errorHandler);
 
 app.use(errorHandler);
 
