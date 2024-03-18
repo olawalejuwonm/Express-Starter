@@ -1,21 +1,19 @@
-import { QueryOptions } from 'mongoose';
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { QueryReturn, find, findOne } from '../../utilities/query';
-import { UpdateUserDto, UpdateUserStatusDto, updateEmailDto } from './dto';
+import { UpdateUserDto, UpdateUserStatusDto } from './dto';
 import { UserMod, UserModel } from '../../models';
-import mailService from '../../services/mailService';
 import {
   serviceError,
   serviceResponseType,
   serviceSuccess,
 } from '../../utilities/response';
 import { validateDTO } from '../../middlewares/validate';
-import { Request } from 'express';
-import { saveToken } from '../../utilities/token';
-import { TokenType } from '../../models/token';
 import { User } from './schema';
 import { FindOneReturnType } from '../../utilities/templates/types';
+import { Ref } from '@typegoose/typegoose';
 
 export default class UserService {
+  static Model = UserModel;
   static async fetchUsers(
     queries: { [key: string]: any },
     conditions: {} | undefined = undefined,
@@ -56,21 +54,18 @@ export default class UserService {
   }
 
   static async updateOne(
-    queries: { [key: string]: any; _id: string },
-    data: UpdateUserDto,
+    queries: FilterQuery<User> | { _id: Ref<User> },
+    data: Partial<UpdateUserDto>,
+    others: UpdateQuery<User> & Partial<User> = {},
     options: QueryOptions<User> = { new: true, runValidators: true },
-  ) {
-    const foundUser = await findOne(UserMod, queries);
-    if (!foundUser) {
-      throw new Error('User not found or access denied');
-    }
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      foundUser._id,
-      data,
+  ): Promise<serviceResponseType<FindOneReturnType<User>>> {
+    const updatedUser = await UserModel.findOneAndUpdate(
+      queries,
+      { ...data, ...others },
       options,
-    );
+    ).orFail();
 
-    return updatedUser;
+    return serviceSuccess(updatedUser, 'User updated successfully');
   }
 
   static async updateStatus(
@@ -78,7 +73,6 @@ export default class UserService {
     data: UpdateUserStatusDto,
     options: QueryOptions<User> = { new: true, runValidators: true },
   ): Promise<serviceResponseType<User | null>> {
-    console.log('queries', queries);
     const foundUser = await findOne(UserMod, queries);
     if (!foundUser) {
       throw new Error('User not found or access denied');
@@ -109,8 +103,8 @@ export default class UserService {
   static async deleteOne(
     id: string,
     queries: { [key: string]: any },
-  ): Promise<serviceResponseType<FindOneReturnType<User>>> {
-    try {
+    ): Promise<serviceResponseType<DeletedResultType<User>>> {
+      try {
       const foundUser = await findOne(UserMod, queries, {
         _id: id,
       });
