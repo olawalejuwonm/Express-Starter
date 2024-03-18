@@ -17,6 +17,7 @@ Follows a domain driven architecture
 - plop file should be feature.controller and the service should be createFeature etc
 - Update the swagger definition to use startcase for naming the endpoint so it can reflect well on bump and other imported site
 - Add eslint
+- Implement https://www.npmjs.com/package/mongoose-delete on User service
 
 
 ## To start
