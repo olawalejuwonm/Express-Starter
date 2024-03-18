@@ -1,4 +1,4 @@
-import { QueryOptions, UpdateQuery } from 'mongoose';
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { FindQuery, QueryReturn, find, findOne } from '../../utilities/query';
 import { Create{{fcapitalize name}}Dto, Update{{fcapitalize name}}Dto } from './dto';
 import { {{fcapitalize name}} } from './schema';
@@ -9,6 +9,7 @@ import {
 } from '../../utilities/response';
 import { {{fcapitalize name}}Model } from '../../models';
 import { FindOneReturnType, DeletedResultType, CreateReturnType } from '../../utilities/templates/types';
+import { Ref } from '@typegoose/typegoose';
 
 export default class {{fcapitalize name}}Service {
   static async fetch(
@@ -65,19 +66,12 @@ export default class {{fcapitalize name}}Service {
   }
 
   static async updateOne(
-    queries: { [key: string]: any; _id: string },
+    queries: FilterQuery<{{fcapitalize name}}> | { _id: Ref<{{fcapitalize name}}> },
     data: Partial<Update{{fcapitalize name}}Dto>,
     others: UpdateQuery<{{fcapitalize name}}> & Partial<{{fcapitalize name}}> = {},
     options: QueryOptions = { new: true, runValidators: true },
   ): Promise<serviceResponseType<FindOneReturnType<{{fcapitalize name}}>>> {
     try {
-      // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries);
-      // if (!found{{fcapitalize name}}) {
-      //   throw {
-      //     message: '{{startcase name}} not found or access denied',
-      //     statusCode: 404,
-      //   };
-      // }
       const updated{{fcapitalize name}} = await {{fcapitalize name}}Model.findOneAndUpdate(
         queries,
         { ...data, ...others },
@@ -92,17 +86,8 @@ export default class {{fcapitalize name}}Service {
   static async deleteOne(
     id: string,
     queries: FindQuery,
-  ): Promise<serviceResponseType<FindOneReturnType<{{fcapitalize name}}>>> {
+  ): Promise<serviceResponseType<DeletedResultType<{{fcapitalize name}}>>> {
     try {
-      // const found{{fcapitalize name}} = await findOne({{fcapitalize name}}Model, queries, {
-      //   _id: id,
-      // });
-      // if (!found{{fcapitalize name}}) {
-      //   throw {
-      //     message: '{{startcase name}} not found or access denied',
-      //     statusCode: 404,
-      //   };
-      // }
       const deleted{{fcapitalize name}} = await {{fcapitalize name}}Model.findOneAndDelete({
         ...queries,
         _id: id,
