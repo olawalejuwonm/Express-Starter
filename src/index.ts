@@ -14,7 +14,6 @@ import cors from 'cors';
 import { endpointSpec } from './swagger/definition';
 import * as fs from 'fs';
 import * as path from 'path';
-import webhookRouter from './routes/webhookRouter';
 import mongoose from 'mongoose';
 import { ip, ipv6 } from 'address';
 import Bugsnag from '@bugsnag/js';
@@ -44,7 +43,6 @@ app.use(cors());
 seed();
 
 app.use('/static', express.static('public'));
-app.use('/api/v1/web', webhookRouter);
 
 app.use(express.json());
 
