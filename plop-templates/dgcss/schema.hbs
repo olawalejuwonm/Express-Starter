@@ -4,7 +4,6 @@ import { User } from '../user/schema';
 
 @plugin(mongooseIdValidator)
 @pre<{{fcapitalize name}}>('save', function (next) {
-  // this.record = doc.name + '-' + doc.createdBy;
   next();
 })
 @modelOptions({
@@ -14,7 +13,4 @@ import { User } from '../user/schema';
 export class {{fcapitalize name}} {
   @prop({ required: true, immutable: true, ref: () => User })
   public createdBy!: Ref<User>;
-
-  // @prop({ required: true, immutable: true, unique: true })
-  // public record!: string;
 }
