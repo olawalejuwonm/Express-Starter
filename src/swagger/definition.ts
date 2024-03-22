@@ -12,7 +12,6 @@ const getFullRoute = (
   startWith: string[] = [],
   lookfor?: string,
 ) => {
-  // resolve the path
   const resolvedPath = path.resolve(dir);
   const fullRoutedirs = startWith;
   if (!fs.existsSync(resolvedPath)) {
@@ -29,7 +28,6 @@ const getFullRoute = (
         format,
         fullRoutedirs,
       );
-      // return [...getFullRoute(path.resolve(resolvedPath, file), format), ...fullRoutedirs];
     } else {
       // if it is a file, push it to the array
       if (file.endsWith(format)) {
@@ -51,26 +49,20 @@ const gernerateDTOSchema = (ALLDTO: any) => {
         let arrays: string[] = [];
         let a = new DTO[key]();
         let array = Object.getOwnPropertyNames(a);
-        // values
         arrays = [...arrays, ...array];
         let properties: any = {};
         arrays.forEach((key) => {
           properties[key] = {
             type: 'any',
-            // default: ''
           };
         });
 
-        // schemas[name?.toUpperCase() + '-' + key] = {
-        //   type: 'object',
-        //   properties,
-        // };
         schemas[key] = {
           type: 'object',
           properties,
         };
       } catch (e) {
-        // console.log(e);
+        console.log(e);
       }
     }
   }
@@ -88,10 +80,6 @@ function importEsALL(paths: string[]) {
 
       const resolvedname = fileResolved.split('dto.ts')[0];
 
-      // const path1 =
-      //   'C:\\Users\\USER\\Documents\\Github\\Cephas\\HR-CORE-API\\src\\features\\tool\\';
-      // const path2 = '/app/src/features/tool/';
-
       const regex = /([a-zA-Z]+)\/?$/;
       const match = regex.exec(resolvedname);
       let name = match?.[1] ?? '';
@@ -103,9 +91,8 @@ function importEsALL(paths: string[]) {
       allFiles[name] = module;
     });
   } catch (e) {
-    // console.log(e);
-    // is not a directory
-    // allFiles = [importPath];
+    console.log(e);
+
   }
 
   return allFiles;
@@ -136,7 +123,6 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
     schemas: {
       GeneralBody: {
         type: 'object',
-        // additionalProperties: true,
       },
       QueryParams: {
         type: 'object',
@@ -169,8 +155,6 @@ const getRawSpec = (dir: string, format: string, lookfor?: string) => {
         'multipart/form-data',
         'application/x-www-form-urlencoded',
       ],
-      // components,
-      // basePath,
       externalDocs: {
         url: '/static/docs/',
         description: 'Find field info here',
@@ -204,19 +188,13 @@ const writeToFile = (
 ) => {
   try {
     if (content === '') {
-      // console.log('content is empty' + filePath);
       return;
     }
-    // console.log(filePath, 'filePath', content, 'content');
     // check if file exists
     if (!fs.existsSync(filePath)) {
       // if it doesn't exist, create the directory and the file
       fs.mkdirSync(path.dirname(filePath), { recursive: true });
     }
-    // else {
-    //   // if it exists, delete the file
-    //   fs.unlinkSync(filePath);
-    // }
     const fd = fs.openSync(filePath, 'w');
     fs.writeFileSync(fd, content, {
       encoding: null,
@@ -224,7 +202,6 @@ const writeToFile = (
       flag: overwrite ? 'w' : 'a',
     });
     fs.closeSync(fd);
-    // fs.writeFileSync(filePath, content, { flag: 'w' });
     if (process.env.NODE_ENV === 'production') {
       console.log('file written', filePath);
     }
@@ -265,12 +242,8 @@ function convertToSingleLineString(multilineText: string = '') {
 
 const docGen = (docs: IADoc) => {
   if (docs?.description || docs?.schema) {
-    // docs.description = (docs?.description || '')
-    //   // .replace(/"/g, '`')
-    //   .replace(/\n/g, '')
-    //   .replace(/\s+/g, ' ');
+
     docs.description = convertToSingleLineString(docs?.description);
-    // docs.description = formatScatteredTextForSwagger(docs?.description);
     docs.description = docs?.description || '';
     docs.schema = docs?.schema || 'GeneralBody';
   } else {
@@ -290,10 +263,6 @@ export const endpointSpec = (
   }[],
 ) => {
   // Create a paths.ts file in the directory of this file (If it doesn't exist)
-  // fs.writeFileSync(
-  //   path.join(__dirname, 'spec.json'),
-  //   JSON.stringify(rawSpec),
-  // );
   let i = 0;
   const docsPath = path.join(__dirname, 'docs');
 
@@ -350,9 +319,6 @@ export const endpointSpec = (
       docs = docGen(docs);
 
       if (method === IMethod.POST) {
-        // console.log(endpoint.path, opath, 'url', docs, importedDTO[name], importedDTO[name]?.docs?.[opath || '/']?.[
-        //   method?.toLocaleUpperCase()
-        // ]);
         const postTemp = constructTemplate(postTemplate, {
           name,
           url,
