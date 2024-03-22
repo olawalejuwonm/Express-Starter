@@ -62,7 +62,8 @@ const gernerateDTOSchema = (ALLDTO: any) => {
           properties,
         };
       } catch (e) {
-        console.log(e);
+        // console.log(e);
+        continue;
       }
     }
   }
@@ -92,7 +93,6 @@ function importEsALL(paths: string[]) {
     });
   } catch (e) {
     console.log(e);
-
   }
 
   return allFiles;
@@ -242,7 +242,6 @@ function convertToSingleLineString(multilineText: string = '') {
 
 const docGen = (docs: IADoc) => {
   if (docs?.description || docs?.schema) {
-
     docs.description = convertToSingleLineString(docs?.description);
     docs.description = docs?.description || '';
     docs.schema = docs?.schema || 'GeneralBody';
