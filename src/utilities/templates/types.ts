@@ -1,5 +1,3 @@
-// ITemplace is a function that accepts replacements object and returns a promise that resolves to service response.
-
 import {
   BeAnObject,
   IObjectWithTypegooseFunction,
@@ -49,13 +47,9 @@ export enum IMethod {
 export interface IADoc {
   description?: string;
   schema?: string;
-  //   method: IMethod;
 }
 
-// export interface IDocs {
-//   [key: string]: {
 
-// }
 export type IMethodKeys = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 type IADocMap = {
