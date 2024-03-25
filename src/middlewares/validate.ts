@@ -3,10 +3,13 @@ import pkg, { validationResult, matchedData } from 'express-validator';
 import response from '../utilities/response';
 import {
   ValidationError,
+  ValidationOptions,
   ValidatorOptions,
   validateSync,
+  registerDecorator,
+  ValidationArguments,
 } from 'class-validator';
-
+import { plainToClass } from 'class-transformer';
 
 export const validateEV = (
   req: Request,
@@ -26,7 +29,6 @@ export const validateEV = (
   next();
 };
 type data = Record<string, any>;
-
 
 export const validateDTO = <D extends data, C extends { new (): any }>(
   classTemplate: C,
@@ -54,18 +56,8 @@ export const validateDTO = <D extends data, C extends { new (): any }>(
       delete instanceClass[key];
     }
   });
-  console.log(
-    classTemplate,
-    'classTemplate',
-    data,
-    'data',
-    instanceClass,
-    'instanceClass',
-  );
-  // return !validateSync(instanceClass).length;
   const errors = validateSync(instanceClass, validatorOptions);
   // Convert to array of strings the errors
-  console.log(errors, 'errors', instanceClass);
   if (errors.length) {
     //construct the error message
     const error = errors[0];
@@ -85,7 +77,6 @@ export const validateDTO = <D extends data, C extends { new (): any }>(
       const message = Object.keys(constraints)
         .map((key) => constraints[key])
         .join(', ');
-      // throw new Error(message);
       errObj.message = message;
       throw errObj;
     } else {
@@ -95,3 +86,63 @@ export const validateDTO = <D extends data, C extends { new (): any }>(
   }
   return instanceClass;
 };
+
+/**
+ * @decorator
+ * @description A custom decorator to validate a validation-schema within a validation schema upload N levels
+ * @param schema The validation Class
+ */
+export function ValidateNestedProp(
+  schema: new () => any,
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'ValidateNested',
+      target: object.constructor,
+      propertyName: propertyName,
+      constraints: [],
+      options: validationOptions,
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          if (Array.isArray(value)) {
+            for (let i = 0; i < (<Array<any>>value).length; i++) {
+              if (validateSync(plainToClass(schema, value[i])).length) {
+                return false;
+              }
+            }
+            return true;
+          } else {
+            return validateSync(plainToClass(schema, value)).length
+              ? false
+              : true;
+          }
+        },
+        // @ts-ignore
+        defaultMessage(args) {
+          if (args) {
+            if (Array.isArray(args.value)) {
+              for (let i = 0; i < (<Array<any>>args.value).length; i++) {
+                return (
+                  `${args.property} ${i + 1} -> ` +
+                  validateSync(plainToClass(schema, args.value[i]))
+                    .map((e) => e.constraints)
+                    // @ts-ignore
+                    .reduce((acc, next) => acc.concat(Object.values(next)), [])
+                ).toString();
+              }
+            } else {
+              return (
+                `${args?.property}: ` +
+                validateSync(plainToClass(schema, args?.value))
+                  .map((e) => e.constraints)
+                  // @ts-ignore
+                  .reduce((acc, next) => acc.concat(Object.values(next)), [])
+              ).toString();
+            }
+          }
+        },
+      },
+    });
+  };
+}
