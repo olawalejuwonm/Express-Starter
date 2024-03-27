@@ -99,26 +99,26 @@ export default class UserService {
       data: updatedUser,
     };
   }
-
   static async deleteOne(
     id: string,
     queries: { [key: string]: any },
-    ): Promise<serviceResponseType<DeletedResultType<User>>> {
-      try {
+  ): Promise<serviceResponseType<DeletedResultType<User>>> {
+    try {
       const foundUser = await findOne(UserMod, queries, {
         _id: id,
       });
       if (!foundUser) {
         throw new Error('User not found or access denied');
       }
-      const deletedUser = await UserModel.findByIdAndDelete(
-        foundUser._id,
-      ).orFail();
+      const deletedUser = await UserModel.findOneAndDelete({
+        _id: foundUser._id,
+      }).orFail();
       return serviceSuccess(deletedUser, 'User deleted successfully');
     } catch (error) {
       return serviceError(error);
     }
   }
+
 
   static async updateUser(
     queries: { [key: string]: any },

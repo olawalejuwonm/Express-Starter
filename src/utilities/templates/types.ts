@@ -25,15 +25,17 @@ export type FindOneReturnType<DT> = Document<unknown, BeAnObject, DT> &
     'typegooseName'
   > &
   IObjectWithTypegooseFunction;
-
-  export type DeletedResultType<DT> = Document<unknown, BeAnObject, DT> &
-  Omit<
-    DT & {
-      _id: Types.ObjectId;
-    },
-    'typegooseName'
-  > &
-  IObjectWithTypegooseFunction;
+  
+  export type DeletedResultType<DT> = ModifyResult<
+  Document<unknown, BeAnObject, DT> &
+    Omit<
+      DT & {
+        _id: Types.ObjectId;
+      },
+      'typegooseName'
+    > &
+    IObjectWithTypegooseFunction
+>;
 
 export enum IMethod {
   GET = 'GET',
