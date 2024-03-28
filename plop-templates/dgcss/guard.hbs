@@ -9,7 +9,6 @@ export const canCreate{{fcapitalize name}}: GuardFunction<FilterQuery<{{fcapital
 ) => {
   try {
     await checkUserTypesService(req, ['super']);
-    // throw new Error('Not implemented');
     return {
       auth: true,
       message: 'Can create {{fcapitalize name}}',

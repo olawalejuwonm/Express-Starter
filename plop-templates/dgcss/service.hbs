@@ -33,7 +33,6 @@ export default class {{fcapitalize name}}Service {
     payload: Create{{fcapitalize name}}Dto,
     data: Partial<{{fcapitalize name}}> = {},
   ): Promise<serviceResponseType<CreateReturnType<{{fcapitalize name}}>>> {
-    // return await {{fcapitalize name}}Model.create(data);
     try {
       const created{{fcapitalize name}} = await {{fcapitalize name}}Model.create({ ...payload, ...data });
       return serviceSuccess(created{{fcapitalize name}}, '{{startcase name}} created successfully', 201);
