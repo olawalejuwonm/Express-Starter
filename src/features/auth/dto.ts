@@ -28,6 +28,7 @@ export class RegisterDto
       | 'roles'
       | 'permissions'
       | 'toJSON'
+      | 'type'
     >
 {
   @IsNotEmpty()
@@ -61,8 +62,6 @@ export class RegisterDto
   @IsNotEmpty()
   lastName!: string;
 
-  @IsNotEmpty()
-  type!: UserTypes;
 
   @IsNotEmpty()
   phone!: string;

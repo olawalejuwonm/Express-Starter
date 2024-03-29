@@ -62,7 +62,6 @@ export default class AuthService {
         data: { user, token },
       };
     } catch (error) {
-      // return
       return {
         success: false,
         message: error.message,
@@ -74,7 +73,6 @@ export default class AuthService {
   static async register(data: RegisterDto): Promise<
     serviceResponseType<{
       user: UserType;
-      token: string;
     }>
   > {
     try {
@@ -86,11 +84,6 @@ export default class AuthService {
       });
 
       if (userWithPhone) {
-        // return {
-        //   success: false,
-        //   message: 'A user with this phone number already exists',
-        //   data: null,
-        // };
         throw new Error('A user with this phone number already exists');
       }
 
@@ -102,14 +95,10 @@ export default class AuthService {
         password,
       );
 
-      console.log('user', user._id);
-      // if (profile.type === 'artisan')
-      // await welcomeTemplate(user.email, profile);
-
       return {
         success: true,
         message: 'Account created successfully',
-        data: { user, token: await user.generateJWT() },
+        data: { user },
       };
     } catch (error) {
       return {

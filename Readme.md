@@ -23,6 +23,7 @@ Follows a domain driven architecture
 ## To start
 - Delete unused code
 - Rename globally
+- Add bump sh
 - Reneame in .env
 - Change db
 - Change Port
