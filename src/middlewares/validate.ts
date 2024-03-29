@@ -9,7 +9,7 @@ import {
   registerDecorator,
   ValidationArguments,
 } from 'class-validator';
-import { plainToClass } from 'class-transformer';
+import { plainToClass, plainToInstance } from 'class-transformer';
 
 export const validateEV = (
   req: Request,
@@ -87,6 +87,20 @@ export const validateDTO = <D extends data, C extends { new (): any }>(
   return instanceClass;
 };
 
+const theValidate = (
+  schema: { new (): any; new (): any; new (...args: any[]): unknown },
+  value: unknown[] | null | undefined,
+  property: string,
+) => {
+  if (value === undefined || value === null) {
+    return true;
+  }
+  if (typeof value !== 'object') {
+    throw new Error(`${property} must be an object`);
+  }
+  return validateSync(plainToInstance(schema, value)).length;
+};
+
 /**
  * @decorator
  * @description A custom decorator to validate a validation-schema within a validation schema upload N levels
@@ -107,24 +121,13 @@ export function ValidateNestedProp(
         validate(value: any, args: ValidationArguments) {
           if (Array.isArray(value)) {
             for (let i = 0; i < (<Array<any>>value).length; i++) {
-              if (validateSync(plainToClass(schema, value[i])).length) {
+              if (theValidate(schema, value[i], args.property)) {
                 return false;
               }
             }
             return true;
-          } else if (value) {
-            console.log(
-              'plain to class',
-              plainToClass(schema, value),
-              schema,
-              value,
-            );
-            return validateSync(plainToClass(schema, value)).length
-              ? false
-              : true;
-          }
-          else {
-            return true;
+          } else {
+            return theValidate(schema, value, args.property) ? false : true;
           }
         },
         // @ts-ignore

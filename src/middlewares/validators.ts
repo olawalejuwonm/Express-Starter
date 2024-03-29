@@ -60,11 +60,29 @@ export const validForm = <DT>(
     if (invalid) {
       throw invalid;
     }
-    // return newModel;
   }
   return form;
 };
 
+export const validateWithModel = <DT>(
+  model: Model<DT>,
+  additionalData: DT,
+): InferSchemaType<typeof model.schema> & {
+  [x: string]: any;
+} => {
+  const schema = model.schema.paths;
+  let form: DT & any = {};
+  form = { ...form, ...additionalData };
+  //TODO: Validate only the field with mongoose validation
+  const newModel = new model(form);
+  const invalid = newModel.validateSync();
+  console.log(invalid, 'valid');
+  if (invalid) {
+    throw invalid;
+  }
+
+  return form;
+};
 export const matched = (
   req:
     | Request
