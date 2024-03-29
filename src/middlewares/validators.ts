@@ -66,7 +66,8 @@ export const validForm = <DT>(
 
 export const validateWithModel = <DT>(
   model: Model<DT>,
-  additionalData: DT,
+  additionalData: Partial<DT>,
+  omitKeys: string[] = [],
 ): InferSchemaType<typeof model.schema> & {
   [x: string]: any;
 } => {
@@ -75,8 +76,15 @@ export const validateWithModel = <DT>(
   form = { ...form, ...additionalData };
   //TODO: Validate only the field with mongoose validation
   const newModel = new model(form);
-  const invalid = newModel.validateSync();
-  console.log(invalid, 'valid');
+  const pathsToValidate: string[] = [];
+  Object.keys(schema).forEach((key) => {
+    // omit keys in omitKeys array
+    if (omitKeys.includes(key)) {
+      return;
+    }
+    pathsToValidate.push(key);
+  });
+  const invalid = newModel.validateSync(pathsToValidate);
   if (invalid) {
     throw invalid;
   }
