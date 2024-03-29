@@ -112,10 +112,19 @@ export function ValidateNestedProp(
               }
             }
             return true;
-          } else {
+          } else if (value) {
+            console.log(
+              'plain to class',
+              plainToClass(schema, value),
+              schema,
+              value,
+            );
             return validateSync(plainToClass(schema, value)).length
               ? false
               : true;
+          }
+          else {
+            return true;
           }
         },
         // @ts-ignore
