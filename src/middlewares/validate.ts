@@ -30,6 +30,12 @@ export const validateEV = (
 };
 type data = Record<string, any>;
 
+const defaultValidatorOptions: ValidatorOptions = {
+  forbidNonWhitelisted: true,
+  forbidUnknownValues: true,
+  whitelist: true,
+};
+
 export const validateDTO = <D extends data, C extends { new (): any }>(
   classTemplate: C,
   data: InstanceType<C> | any,
@@ -98,7 +104,8 @@ const theValidate = (
   if (typeof value !== 'object') {
     throw new Error(`${property} must be an object`);
   }
-  return validateSync(plainToInstance(schema, value)).length;
+  return validateSync(plainToInstance(schema, value), defaultValidatorOptions)
+    .length;
 };
 
 /**
@@ -137,7 +144,7 @@ export function ValidateNestedProp(
               for (let i = 0; i < (<Array<any>>args.value).length; i++) {
                 return (
                   `${args.property} ${i + 1} -> ` +
-                  validateSync(plainToClass(schema, args.value[i]))
+                  validateSync(plainToInstance(schema, args.value[i], defaultValidatorOptions))
                     .map((e) => e.constraints)
                     // @ts-ignore
                     .reduce((acc, next) => acc.concat(Object.values(next)), [])
@@ -146,7 +153,7 @@ export function ValidateNestedProp(
             } else {
               return (
                 `${args?.property}: ` +
-                validateSync(plainToClass(schema, args?.value))
+                validateSync(plainToClass(schema, args?.value, defaultValidatorOptions))
                   .map((e) => e.constraints)
                   // @ts-ignore
                   .reduce((acc, next) => acc.concat(Object.values(next)), [])
