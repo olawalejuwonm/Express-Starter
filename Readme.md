@@ -18,6 +18,7 @@ Follows a domain driven architecture
 - Update the swagger definition to use startcase for naming the endpoint so it can reflect well on bump and other imported site
 - Add eslint
 - Implement https://www.npmjs.com/package/mongoose-delete on User service
+- Add href to documentation of the 5 generated endpoint
 
 
 ## To start
