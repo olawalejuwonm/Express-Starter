@@ -6,7 +6,7 @@ import {
   ModelType,
 } from '@typegoose/typegoose/lib/types';
 import _ from 'lodash';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { FilterQuery, Model } from 'mongoose';
 import { Document } from 'mongoose';
 import { FindOneReturnType } from './templates/types';
 
@@ -90,8 +90,7 @@ export type QueryReturn<DT> = {
   totalPages: number;
 };
 
-export type FindQuery = {
-  [x: string]: any;
+export type FindQuery<T = any> = FilterQuery<T> & {
   _select?: string | Array<string>;
   _order?: 'asc' | 'desc';
   _orderBy?: string;
