@@ -25,6 +25,7 @@
   "dependencies": {
     "@novu/node": "^0.21.0",
     "@typegoose/typegoose": "^12.1.0",
+    "address": "^2.0.2",
     "axios": "^1.6.7",
     "class-validator": "^0.14.1",
     "cloudinary": "^2.0.0",

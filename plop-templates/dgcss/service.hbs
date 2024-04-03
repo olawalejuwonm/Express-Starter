@@ -13,8 +13,8 @@ import { Ref } from '@typegoose/typegoose';
 
 export default class {{fcapitalize name}}Service {
   static async fetch(
-    queries: FindQuery,
-    conditions: FindQuery | undefined = undefined,
+    queries: FindQuery<{{fcapitalize name}}>,
+    conditions: FindQuery<{{fcapitalize name}}> | undefined = undefined,
   ): Promise<serviceResponseType<QueryReturn<{{fcapitalize name}}>>> {
     try {
       let found{{fcapitalize name}}s;
@@ -42,8 +42,8 @@ export default class {{fcapitalize name}}Service {
   }
 
   static async fetchOne(
-    queries: FindQuery,
-    conditions: FindQuery | undefined = undefined,
+    queries: FindQuery<{{fcapitalize name}}>,
+    conditions: FindQuery<{{fcapitalize name}}> | undefined = undefined,
   ): Promise<serviceResponseType<FindOneReturnType<{{fcapitalize name}}>>> {
     try {
       let found{{fcapitalize name}};
@@ -84,7 +84,7 @@ export default class {{fcapitalize name}}Service {
 
   static async deleteOne(
     id: string,
-    queries: FindQuery,
+    queries: FindQuery<{{fcapitalize name}}>,
   ): Promise<serviceResponseType<DeletedResultType<{{fcapitalize name}}>>> {
     try {
       const deleted{{fcapitalize name}} = await {{fcapitalize name}}Model.findOneAndDelete({

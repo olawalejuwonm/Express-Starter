@@ -16,24 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import mongoose from 'mongoose';
 import { ip, ipv6 } from 'address';
-import Bugsnag from '@bugsnag/js';
-import BugsnagPluginExpress from '@bugsnag/plugin-express';
 
-let bug_middeleware:
-  | {
-      errorHandler: express.ErrorRequestHandler;
-      requestHandler: express.RequestHandler;
-    }
-  | undefined;
-if (process.env.BUG_SNAG) {
-  Bugsnag.start({
-    apiKey: process.env.BUG_SNAG,
-    plugins: [BugsnagPluginExpress],
-  });
-  bug_middeleware = Bugsnag.getPlugin('express');
-} else {
-  console.warn('Bugsnag not configured');
-}
 const listEndpoints = require('express-list-endpoints');
 
 const app: Application = express();
@@ -66,10 +49,10 @@ app.use(helmet()); // For security
 
 app.use('/api/v1', router);
 
-const isProd = process.env.NODE_ENV !== 'development'
+const isProd = process.env.NODE_ENV !== 'development';
 const routes = listEndpoints(app);
-const swaggerPath = isProd ? '/swagger-prod' : '/swagger'
-const endpointPath = isProd ? '/endpoints-prod' : '/endpoints'
+const swaggerPath = isProd ? '/swagger-prod' : '/swagger';
+const endpointPath = isProd ? '/endpoints-prod' : '/endpoints';
 // morgan Body don't log
 // morganBody(app, {
 //   skip: () => false,
@@ -80,10 +63,11 @@ app.get(endpointPath, (req: Request, res: Response) => {
     <html>
     <p>API endpoints</p>
     <table><tbody>${routes.map(
-    (route: { methods: any; path: any }) =>
-      `<tr><td><strong>${route.methods.join()}</strong></td><td>${route.path
-      }</td></tr>`,
-  )}</tbody></table> </html>`);
+      (route: { methods: any; path: any }) =>
+        `<tr><td><strong>${route.methods.join()}</strong></td><td>${
+          route.path
+        }</td></tr>`,
+    )}</tbody></table> </html>`);
 });
 app.use(
   swaggerPath,
@@ -102,7 +86,6 @@ app.use(
     },
   }),
 );
-
 
 // render spec.json
 app.get('/swagger.json', (req: Request, res: Response) => {
@@ -157,8 +140,6 @@ app.all('*', (req: Request, res: Response) => {
     data: healthCheck(),
   });
 });
-
-if (bug_middeleware) app.use(bug_middeleware.errorHandler);
 
 app.use(errorHandler);
 

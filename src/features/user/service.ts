@@ -119,7 +119,6 @@ export default class UserService {
     }
   }
 
-
   static async updateUser(
     queries: { [key: string]: any },
     data: UpdateUserDto,

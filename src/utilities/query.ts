@@ -90,7 +90,7 @@ export type QueryReturn<DT> = {
   totalPages: number;
 };
 
-export type FindQuery<T = any> = FilterQuery<T> & {
+export type FindQuery<T> = FilterQuery<T> & {
   _select?: string | Array<string>;
   _order?: 'asc' | 'desc';
   _orderBy?: string;
@@ -134,13 +134,13 @@ export const mergeQueries = (
 };
 const get = async <DT extends AnyParamConstructor<any>>(
   model: ReturnModelType<DT, BeAnObject>,
-  queryA: FindQuery,
-  conditionsA: FindQuery = {},
+  queryA: FindQuery<DT>,
+  conditionsA: FindQuery<DT> = {},
   multiple = true,
 ) => {
   try {
-    let query = queryA;
-    let conditions = conditionsA;
+    let query: any = queryA;
+    let conditions: any = conditionsA;
     const populate = query._populate || conditions._populate;
     const select = query._select || conditions._select;
     const limit = parseInt(query._limit || conditions._limit || '10', 10);
@@ -411,15 +411,15 @@ const get = async <DT extends AnyParamConstructor<any>>(
 // <DT extends AnyParamConstructor<any>>
 export const find = async <DT extends AnyParamConstructor<any>>(
   model: ReturnModelType<DT, BeAnObject>,
-  query: FindQuery,
-  conditions?: FindQuery,
+  query: FindQuery<DT>,
+  conditions?: FindQuery<DT>,
 ): Promise<QueryReturn<InstanceType<DT>>> =>
   get(model, query, conditions) as unknown as QueryReturn<InstanceType<DT>>;
 
 export const findOne = async <DT extends AnyParamConstructor<any>>(
   model: ReturnModelType<DT, BeAnObject>,
-  query: FindQuery,
-  conditions?: FindQuery,
+  query: FindQuery<DT>,
+  conditions?: FindQuery<DT>,
 ): Promise<FindOneReturnType<InstanceType<DT>> | null> =>
   get(model, query, conditions, false) as unknown as FindOneReturnType<
     InstanceType<DT>
