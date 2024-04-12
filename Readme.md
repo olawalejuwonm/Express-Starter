@@ -20,7 +20,7 @@ Follows a domain driven architecture
 - Implement https://www.npmjs.com/package/mongoose-delete on User service
 - Add href to documentation of the 5 generated endpoint
 - Remove all unused libraries
-
+- Add optional() to DTO by default
 
 ## To start
 - Delete unused code
