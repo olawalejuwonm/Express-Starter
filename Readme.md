@@ -19,6 +19,7 @@ Follows a domain driven architecture
 - Add eslint
 - Implement https://www.npmjs.com/package/mongoose-delete on User service
 - Add href to documentation of the 5 generated endpoint
+- Remove all unused libraries
 
 
 ## To start
