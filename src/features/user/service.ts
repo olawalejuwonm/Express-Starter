@@ -119,34 +119,4 @@ export default class UserService {
     }
   }
 
-  static async updateUser(
-    queries: { [key: string]: any },
-    data: UpdateUserDto,
-    options: QueryOptions = { new: true, runValidators: true },
-  ): Promise<serviceResponseType<FindOneReturnType<User>>> {
-    try {
-      validateDTO(UpdateUserDto, data);
-      const foundUser = await findOne(UserMod, queries);
-      if (!foundUser) {
-        throw new Error('User not found or access denied');
-      }
-      const otherData: Partial<User> = {};
-      // if (data.email) {
-      //   otherData.emailVerified = false;
-      // }
-      // if (data.phone) {
-      //   otherData.phoneVerified = false;
-      // }
-      const updatedUser = await UserModel.findByIdAndUpdate(
-        foundUser._id,
-        { ...data, ...otherData },
-        options,
-      ).orFail();
-
-      // return updatedUser;
-      return serviceSuccess(updatedUser, 'Profile updated successfully');
-    } catch (error) {
-      return serviceError(error);
-    }
-  }
 }

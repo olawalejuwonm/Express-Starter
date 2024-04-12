@@ -36,9 +36,9 @@ router.put(
     res: Response,
   ) => {
     const perm = throwPermIfError(await canFetchProfile(req));
-    // const body = validateDTO(UpdateUserDto, req.body);
+    const payload = validateDTO(UpdateUserDto, req.body);
     const data = throwIfError(
-      await UserService.updateUser({ ...perm.query }, req.body),
+      await UserService.updateOne({ ...perm.query }, payload),
     );
 
     return response(res, data.statusCode, data.message, data.data);
