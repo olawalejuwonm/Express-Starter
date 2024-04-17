@@ -9,6 +9,9 @@ export class Create{{fcapitalize name}}Dto implements Omit<Required<{{fcapitaliz
 doc['/'] = {
   POST: {
     schema: Create{{fcapitalize name}}Dto.name,
+    description: `
+    
+    `
   },
 };
 
@@ -17,6 +20,9 @@ export class Update{{fcapitalize name}}Dto implements Omit<Create{{fcapitalize n
 doc['/:id'] = {
   PUT: {
     schema: Update{{fcapitalize name}}Dto.name,
+      description: `
+    
+    `
   },
 };
 
