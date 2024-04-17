@@ -6,7 +6,7 @@ import {
   canUpdateUserStatus,
 } from './guard';
 import { validateDTO } from '../../middlewares/validate';
-import { UpdateUserStatusDto } from './dto';
+import { UpdateUserDto, UpdateUserStatusDto } from './dto';
 import UserService from './service';
 import response, {
   throwIfError,
