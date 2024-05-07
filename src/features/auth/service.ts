@@ -162,7 +162,6 @@ export default class AuthService {
       }
       const { userId } = emailVerify;
       const user = (await UserModel.findById(userId)
-        .populate('profile')
         .orFail()) as AllUserType;
       await user.setPassword(newPassword);
       await user.save();
