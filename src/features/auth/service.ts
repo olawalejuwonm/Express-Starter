@@ -1,10 +1,12 @@
 import {
   ChangePasswordDto,
   ForgotPasswordDto,
+  LoginAdminDto,
   LoginDto,
   RegisterDto,
   RequestPhoneVerificationDto,
   ResetPasswordDto,
+  SetPinDTO,
   VerifyEmailResendDto,
   VerifyToken,
 } from './dto';
@@ -62,6 +64,7 @@ export default class AuthService {
         data: { user, token },
       };
     } catch (error) {
+      // return
       return {
         success: false,
         message: error.message,
@@ -70,12 +73,44 @@ export default class AuthService {
     }
   }
 
-  static async register(data: RegisterDto): Promise<
+  static async loginAdmin(data: LoginAdminDto): Promise<
+    serviceResponseType<{
+      user: UserType;
+      token: string;
+    }>
+  > {
+    try {
+      const user = await UserModel.findOne(data);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const token = await user.generateJWT();
+      user.lastLogin = new Date();
+      user.save();
+      return {
+        success: true,
+        message: 'Login successful',
+        data: { user, token },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+        data: error,
+      };
+    }
+  }
+
+  static async register(
+    data: RegisterDto,
+    others: Partial<User>,
+  ): Promise<
     serviceResponseType<{
       user: UserType;
     }>
   > {
     try {
+      data = { ...data, ...others };
       const { email, password } = data;
 
       // Check if user with phone exists
@@ -153,17 +188,10 @@ export default class AuthService {
       const emailVerify = await verifyToken(token, TokenType.ResetPassword);
 
       if (!emailVerify.valid) {
-        // return {
-        //   success: false,
-        //   message: 'Invalid token',
-        //   data: emailVerify,
-        // };
         throw new Error('Invalid token');
       }
       const { userId } = emailVerify;
-      const user = (await UserModel.findById(userId)
-        .populate('profile')
-        .orFail()) as AllUserType;
+      const user = (await UserModel.findById(userId).orFail()) as AllUserType;
       await user.setPassword(newPassword);
       await user.save();
       await AuthTemplates.passwordResetConfirmationTemplate(user);

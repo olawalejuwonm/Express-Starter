@@ -1,38 +1,31 @@
 import express, { Request, Response } from 'express';
-import {
-  authPaths,
-  canCreateAuth,
-  canDeleteAuth,
-  canFetchAuth,
-  canUpdateAuth,
-} from './guard';
+import { authPaths } from './guard';
 import AuthService from './service';
-import _ from 'passport-local-mongoose';
 import response, { throwIfError } from '../../utilities/response';
 import { validateDTO } from '../../middlewares/validate';
 import {
   ChangePasswordDto,
   ForgotPasswordDto,
+  LoginAdminDto,
   LoginDto,
   RegisterDto,
   ResetPasswordDto,
+  SetPinDTO,
   VerifyEmailResendDto,
   VerifyToken,
 } from './dto';
-import { authenticate } from '../../middlewares/authentication';
+import {
+  authenticate,
+  authenticateAdmin,
+} from '../../middlewares/authentication';
 import { tokenValid } from '../../utilities/token';
+import { UserTypes } from '../user/schema';
+import { validateWithModel } from '../../middlewares/validators';
 const router = express.Router();
-
 
 router.post(authPaths.login, async (req: Request, res: Response) => {
   const body: LoginDto = validateDTO(LoginDto, req.body);
   const data = throwIfError(await AuthService.login(body));
-  return response(res, data.statusCode, data.message, data.data);
-});
-
-router.post(authPaths.register, async (req: Request, res: Response) => {
-  const body: RegisterDto = validateDTO(RegisterDto, req.body);
-  const data = throwIfError(await AuthService.register(body));
   return response(res, data.statusCode, data.message, data.data);
 });
 
@@ -102,4 +95,15 @@ router.get(authPaths.tokenValidity, async (req: Request, res: Response) => {
   return response(res, data.statusCode, data.message, data.data);
 });
 
+
+
+router.post(
+  '/login-admin',
+  authenticateAdmin,
+  async (req: Request, res: Response) => {
+    const body = validateDTO(LoginAdminDto, req.body);
+    const data = throwIfError(await AuthService.loginAdmin(body));
+    return response(res, data.statusCode, data.message, data.data);
+  },
+);
 export default router;

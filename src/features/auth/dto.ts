@@ -1,14 +1,13 @@
 import {
-  IsArray,
   IsEmail,
-  IsMongoId,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
 import { IDocs } from '../../utilities/templates/types';
 import { authPaths } from './guard';
-import { User, UserTypes } from '../user/schema';
+import { User } from '../user/schema';
+import { ValidateNestedProp } from '../../middlewares/validate';
 
 const doc: IDocs = {};
 
@@ -28,7 +27,18 @@ export class RegisterDto
       | 'roles'
       | 'permissions'
       | 'toJSON'
+      | 'hotScore'
+      | 'skp'
+      | 'generateSKP'
+      | 'verifySKP'
+      | 'organisationAdmins'
+      | 'organisationMembers'
       | 'type'
+      | 'ninNumber'
+      | 'bvnNumber'
+      | 'levels'
+      | 'positions'
+      | 'departments'
     >
 {
   @IsNotEmpty()
@@ -62,18 +72,30 @@ export class RegisterDto
   @IsNotEmpty()
   lastName!: string;
 
-
   @IsNotEmpty()
   phone!: string;
 }
 
-doc[authPaths.register] = {
+doc['/register-individual'] = {
   POST: {
     schema: RegisterDto.name,
+    description: `
+    {
+      "email": "olawalejuwon@gmail.com",
+      "password": "Juwon@1234",
+      "firstName": "Micheal",
+      "lastName": "Juwon",
+      "type": "individual",
+      "phone": "08145156235"
+    }
+
+    
+    `,
   },
 };
+
+
 export class LoginDto {
-  // export class CreateAuthDto implements Partial<Auth> {
   @IsNotEmpty()
   @IsString()
   public username!: string;
@@ -82,15 +104,37 @@ export class LoginDto {
   public password!: string;
 }
 
+export class LoginAdminDto {
+  @IsNotEmpty()
+  @IsString()
+  public email!: string;
+}
+
+doc['/login-admin'] = {
+  POST: {
+    description: ``,
+    schema: LoginAdminDto.name,
+  },
+};
+
 doc[authPaths.login] = {
   POST: {
     description: `
     For individual account
-    username olawalejuwonm@gmail.com,
-    password Juwon@1234
+    {
+      "username": "olawalejuwon@gmail.com",
+      "password": "Juwon@1234"
+    }
     For Admin Account
-    username admin@${process.env.APP_NAME}.com,
-    password Super@1234
+    {
+      "username": "admin@${process.env.APP_NAME}.com",
+      "password": "Super@1234"
+    }
+    For Organisation
+    {
+      "username": "o.l.awa.lejuwon@gmail.com",
+      "password": "Juwon@1234"
+    }
    `,
     schema: LoginDto.name,
   },
@@ -139,7 +183,6 @@ export class VerifyEmailResendDto {
     {},
     {
       message: 'Email format is invalid',
-
     },
   )
   public email!: string;
@@ -182,6 +225,20 @@ doc[authPaths.requestPhoneVerification] = {
   },
 };
 
-export const docs = doc;
+export class SetPinDTO {
+  @IsNotEmpty()
+  public pin!: string;
 
-// console.log('hello', docs);
+  @IsString()
+  public password!: string;
+}
+doc['/set-pin'] = {
+  POST: {
+    schema: SetPinDTO.name,
+    description: `
+    PIN MUST BE BETWEEN 234567
+    `,
+  },
+};
+
+export const docs = doc;
