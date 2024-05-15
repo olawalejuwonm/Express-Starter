@@ -24,7 +24,7 @@ type ErrorResponseType<T> = {
   statusCode?: number;
 };
 
-export type serviceResponseType<T = any> =
+export type serviceResponseType<T> =
   | SuccessResponseType<T>
   | ErrorResponseType<T>;
 
@@ -62,7 +62,7 @@ export const serviceWrapper = async <T>(
   }
 };
 
-export default <T = any>(
+export default <T>(
   res: Response,
   status: number,
   message: string,
