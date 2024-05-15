@@ -28,7 +28,6 @@ export type serviceResponseType<T = any> =
   | SuccessResponseType<T>
   | ErrorResponseType<T>;
 
-
 export const serviceError = <T>(
   error: serviceErrorType<T>,
 ): ErrorResponseType<T> => {
@@ -90,6 +89,9 @@ export const throwIfError = <MT>(
     };
 
     if (fn.data) {
+      if (fn.message && fn.data.message) {
+        fn.data.message = fn.message;
+      }
       data.data = fn.data;
     }
 
