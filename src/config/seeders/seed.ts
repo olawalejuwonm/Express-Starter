@@ -11,8 +11,13 @@ import { UserModel } from '../../models';
 const payload = {
   firstName: 'Super',
   lastName: 'Admin',
-  email: `admin@${process.env.APP_NAME || ''}.com`,
-  password: 'Super@1234',
+  email:
+    `admin@${process.env.APP_NAME || ''}` + process.env.NODE_ENV ===
+    'development'
+      ? '.dev'
+      : '.app',
+  password:
+    process.env.NODE_ENV === 'development' ? 'Super@1234' : 'SuperAdmin@1234',
   phone: '123456677',
   emailVerified: true,
   isAdmin: true,
