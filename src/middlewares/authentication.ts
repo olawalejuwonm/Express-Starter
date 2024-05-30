@@ -134,12 +134,12 @@ export const authenticateAdmin = async (
       process.env.ADMIN_JWT_SECRET,
     ]);
     if (!authenticated?.success) {
-      return response(res, 401, authenticated?.message);
+      return response(res, 403, authenticated?.message);
     }
     if (!authenticated?.user?.isAdmin) {
       return response(
         res,
-        401,
+        403,
         'You do not have admin privileges to perform this action',
       );
     }
@@ -195,8 +195,7 @@ export const checkUserTypes =
       process.env.ADMIN_JWT_SECRET,
     ]);
     if (!authenticated?.success) {
-      console.log('authenticated', authenticated);
-      return response(res, 401, authenticated?.message);
+      return response(res, 403, authenticated?.message);
     }
 
     if (types.includes(req.user.type)) {
@@ -204,7 +203,7 @@ export const checkUserTypes =
     } else {
       return response(
         res,
-        401,
+        403,
         `Permission denied for this user: ${req.user.type}`,
       );
     }
@@ -241,10 +240,10 @@ export const checkPermission = (slug: any) => {
     try {
       let permission = await Permission.findOne({ slug });
       if (!permission) {
-        return response(res, 401, 'Permission not found');
+        return response(res, 403, 'Permission not found');
       }
       if (permission.status === 'inactive') {
-        return response(res, 401, 'Permission is inactive');
+        return response(res, 403, 'Permission is inactive');
       }
       let role = await Role.findById(req.user.role);
       if (
@@ -254,7 +253,7 @@ export const checkPermission = (slug: any) => {
       ) {
         return response(
           res,
-          401,
+          403,
           "You don't have permission to access this route",
         );
       }
@@ -274,7 +273,7 @@ export const usePermission = (permission: () => Promise<AuthQuery>) => {
     try {
       const authQuery = await permission();
       if (authQuery.auth === false) {
-        return response(res, 401, authQuery.message);
+        return response(res, 403, authQuery.message);
       }
       next();
     } catch (error) {
