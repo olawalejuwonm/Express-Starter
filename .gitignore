@@ -27,3 +27,5 @@ public/docs/**/*
 src/swagger/docs/**/*
 
 tsconfig.tsbuildinfo
+
+backup/**/*

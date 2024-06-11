@@ -21,6 +21,7 @@ Follows a domain driven architecture
 - Add href to documentation of the 5 generated endpoint
 - Remove all unused libraries
 - Add optional() to DTO by default
+- Check cyber sec PR
 
 ## To start
 - Delete unused code

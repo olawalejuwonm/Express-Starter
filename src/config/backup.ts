@@ -1,5 +1,5 @@
 import os from 'os';
-
+import 'dotenv/config';
 export default async function dumpAndRotate(uri: string, path: string) {
   // @ts-ignore
   const { MongoTools, MTOptions, MTCommand } = await import('node-mongotools');

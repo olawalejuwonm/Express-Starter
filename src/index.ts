@@ -16,7 +16,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import mongoose from 'mongoose';
 import { ip, ipv6 } from 'address';
-import './config/backup';
 
 
 const listEndpoints = require('express-list-endpoints');
