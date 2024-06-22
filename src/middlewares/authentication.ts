@@ -6,7 +6,6 @@ import response from '../utilities/response';
 import Permission from '../models/permissionModel';
 import Role from '../models/role.model';
 import { AuthQuery } from '../utilities/permission';
-import { isDocument } from '@typegoose/typegoose';
 import { UserModel } from '../models';
 import { UserTypes } from '../features/user/schema';
 
@@ -22,17 +21,7 @@ type AuthenticatedUser = {
   error?: any;
 };
 
-const whitelistUrls = [
-  // '/api/v1/project',
-  // '/api/verify/company',
-  // '/api/verify/individual',
-  '/project',
-  '/verify/individual',
-  '/verify/company',
-  '/file',
-];
 
-const blacklistUrls = ['/job'];
 export const authenticator: any = async (
   req: Request,
   secrets = [],
@@ -71,16 +60,6 @@ export const authenticator: any = async (
             req.originalUrl,
             req.url,
           );
-          // if (
-          //   user.status !== 'active' &&
-          //   req.method !== 'GET' &&
-          //   !whitelistUrls.includes(req.url)
-          // ) {
-          //   return {
-          //     success: false,
-          //     message: 'Account is not active',
-          //   };
-          // }
           return {
             success: true,
             message: 'User authenticated',
