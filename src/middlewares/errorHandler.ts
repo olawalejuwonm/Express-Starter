@@ -1,11 +1,13 @@
-import pkg from 'lodash';
-import pluralize from 'pluralize';
 import mongooseErrorHandler from 'mongoose-validation-error-message-handler';
 import response from '../utilities/response';
 import { NextFunction, Request } from 'express';
-import axios, { AxiosError } from 'axios';
+import { AxiosError, isAxiosError } from 'axios';
 
-const { startCase, upperFirst } = pkg;
+const startCase = (str: string) =>
+  str?.charAt(0)?.toUpperCase() + str?.slice(1);
+const upperFirst = (str: string) =>
+  str?.charAt(0)?.toUpperCase() + str?.slice(1);
+const singular = (str: string) => str?.replace(/s$/, '');
 export default function errorHandler(
   err: any,
   req: Request,
@@ -17,7 +19,7 @@ export default function errorHandler(
     console.log('Error Data');
     err = err.data;
   }
-  if (axios.isAxiosError(err)) {
+  if (isAxiosError(err)) {
     console.log('Axios Error');
     const aerr: AxiosError = err;
     return response(
@@ -33,7 +35,6 @@ export default function errorHandler(
     { err },
     err?.data,
     'errorHandler ends',
-
   );
   if (err.name === 'DocumentNotFoundError') {
     let match = err.message.match(/model \"(\w+)\"/);
@@ -75,7 +76,6 @@ export default function errorHandler(
     return response(res, 400, upperFirst(message), errData);
   }
 
-  console.log(error.name, 'error 59');
   if (err.type === 'entity.parse.failed') {
     return response(res, 400, 'Invalid payload passed.');
   }
@@ -104,10 +104,9 @@ export default function errorHandler(
   if (err.code === 11000) {
     const vars = err.message?.split(':');
     const tableName = vars[1]?.split(' ')[1]?.split('.')[1] || '';
-    let modelName = startCase(pluralize.singular(tableName));
+    let modelName = startCase(singular(tableName));
     let fieldName = vars[2]?.split(' ')[1]?.split('_')[0];
     if (!modelName) {
-      console.log('In modelName');
       modelName = startCase(vars[5]?.split(' ')[1]?.split('.')[1]);
       // field name is in last element of vars array
       // splitt by "

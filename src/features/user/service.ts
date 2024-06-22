@@ -7,7 +7,6 @@ import {
   serviceResponseType,
   serviceSuccess,
 } from '../../utilities/response';
-import { validateDTO } from '../../middlewares/validate';
 import { User } from './schema';
 import { DeletedResultType, FindOneReturnType } from '../../utilities/templates/types';
 import { Ref } from '@typegoose/typegoose';

@@ -8,9 +8,7 @@ import {
   ForgotPasswordDto,
   LoginAdminDto,
   LoginDto,
-  RegisterDto,
   ResetPasswordDto,
-  SetPinDTO,
   VerifyEmailResendDto,
   VerifyToken,
 } from './dto';
@@ -19,8 +17,6 @@ import {
   authenticateAdmin,
 } from '../../middlewares/authentication';
 import { tokenValid } from '../../utilities/token';
-import { UserTypes } from '../user/schema';
-import { validateWithModel } from '../../middlewares/validators';
 const router = express.Router();
 
 router.post(authPaths.login, async (req: Request, res: Response) => {
@@ -94,8 +90,6 @@ router.get(authPaths.tokenValidity, async (req: Request, res: Response) => {
   const data = throwIfError(await tokenValid(query.token));
   return response(res, data.statusCode, data.message, data.data);
 });
-
-
 
 router.post(
   '/login-admin',
