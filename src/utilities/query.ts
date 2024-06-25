@@ -1,13 +1,11 @@
-import { ReturnModelType, getModelForClass } from '@typegoose/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 import {
   AnyParamConstructor,
   BeAnObject,
   IObjectWithTypegooseFunction,
-  ModelType,
 } from '@typegoose/typegoose/lib/types';
 import _ from 'lodash';
 import mongoose, { FilterQuery, Model } from 'mongoose';
-import { Document } from 'mongoose';
 import { FindOneReturnType } from './templates/types';
 
 const skippedArrayFields = ['$or'];
