@@ -22,6 +22,7 @@ Follows a domain driven architecture
 - Remove all unused libraries
 - Add optional() to DTO by default
 - Check cyber sec PR
+- Make compatible with ESM
 
 ## To start
 - Delete unused code
