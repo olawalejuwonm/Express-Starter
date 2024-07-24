@@ -23,6 +23,8 @@ Follows a domain driven architecture
 - Add optional() to DTO by default
 - Check cyber sec PR
 - Make compatible with ESM
+- Publish mongoose id validator
+- Publish swagger micro module
 
 ## To start
 - Delete unused code
