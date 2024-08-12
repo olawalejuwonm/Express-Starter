@@ -80,7 +80,7 @@ function onListening() {
   debug(`Listening on ${bind}`);
   console.log(`Listening on ${bind}`);
   // console a clickable localhost link to the server on the terminal
-  console.log(`http://localhost:${port}/static/docs/`);
+  console.log(`http://localhost:${port}/swagger`);
 }
 
 /**
