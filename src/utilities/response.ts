@@ -24,9 +24,10 @@ type ErrorResponseType<T> = {
   statusCode?: number;
 };
 
-export type serviceResponseType<T> =
+export type serviceResponseType<T = any> =
   | SuccessResponseType<T>
   | ErrorResponseType<T>;
+
 
 export const serviceError = <T>(
   error: serviceErrorType<T>,
@@ -40,7 +41,7 @@ export const serviceError = <T>(
 
 export const serviceSuccess = <T>(
   data: T,
-  message: string = 'Sucess',
+  message: string = 'Success',
   statusCode: number = 200,
 ): SuccessResponseType<T> => {
   return {
@@ -62,7 +63,7 @@ export const serviceWrapper = async <T>(
   }
 };
 
-export default <T>(
+export default <T = any>(
   res: Response,
   status: number,
   message: string,
@@ -76,12 +77,11 @@ export default <T>(
 
 export const throwIfError = <MT>(
   fn: serviceResponseType<MT>,
-  next?: NextFunction,
 ): SuccessResponseType<MT> & {
   statusCode: number;
 } => {
   if (fn.success === false) {
-    let data: serviceResponseType<MT> = {
+    const data: serviceResponseType<MT> = {
       success: false,
       message: fn.message || 'Error',
       data: null as any,
@@ -89,20 +89,15 @@ export const throwIfError = <MT>(
     };
 
     if (fn.data) {
-      if (fn.message && fn.data.message) {
-        fn.data.message = fn.message;
-      }
       data.data = fn.data;
     }
 
     throw data;
   }
 
-  let data: SuccessResponseType<MT> & {
+  const data: SuccessResponseType<MT> & {
     statusCode: number;
-  };
-
-  data = {
+  } = {
     success: true,
     message: fn.message || 'Success',
     data: fn.data,
@@ -112,11 +107,10 @@ export const throwIfError = <MT>(
   return data;
 };
 
-export const throwPermIfError = <T>(
-  fn: PermType<T>,
+export const throwPermIfError = <T, K>(
+  fn: PermType<T, K>,
   next?: NextFunction,
-): PermType<T> => {
-  console.log(fn, 'fn data');
+): PermType<T, K> => {
 
   if (fn.auth === true) {
     return fn;
