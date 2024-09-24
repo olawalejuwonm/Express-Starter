@@ -81,43 +81,7 @@ const defaultSchema = new mongoose.Schema(
 const schemas: any = {
   data: new mongoose.Schema({}, {}),
 };
-const createModel = async () => {
-  try {
-    let modelsNames = [];
 
-    const settings = await Settings.findOne();
-
-    modelsNames = [...typeList, ...(settings?.dataTypes || [])];
-
-    // const thePromises = [];
-    modelsNames.forEach((model) => {
-      // check if model already exists
-      if (mongoose.models[model]) {
-        return;
-      }
-      mongoose.model(model, schemas[model] || defaultSchema);
-
-      // thePromises.push(themodel);
-    });
-
-    const allModelNameThatStartsWithSmallCase = modelNames().filter(
-      (model: any) => model.charAt(0) === model.charAt(0).toLowerCase(),
-    );
-
-    typeList = [...typeList, ...allModelNameThatStartsWithSmallCase];
-    modelNames().forEach((modelName) => {
-      models[modelName] = mongoose.model(modelName);
-    });
-
-    // Pass in the Mongoose instance with the models implemented.
-    // const schemaJSON = mongooseDocsJSON(mongoose);
-
-    // Output documentation into HTML files
-    // mongooseDocsOutputHTML(schemaJSON, __dirname + '/docs');
-  } catch (error) {
-    console.log(error, 'error');
-  }
-};
 //TODO: call in index.ts
 // createModel();
 const defaultRule = {

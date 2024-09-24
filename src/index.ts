@@ -16,17 +16,27 @@ import * as fs from 'fs';
 import * as path from 'path';
 import mongoose from 'mongoose';
 import { ip, ipv6 } from 'address';
+import { mongooseDocsJSON, mongooseDocsOutputHTML } from './mongoose-docs/src';
 
 
 const listEndpoints = require('express-list-endpoints');
 
 const app: Application = express();
+const isProd = process.env.NODE_ENV !== 'development';
+
 
 app.use(cors());
 
 seed();
 
 app.use('/static', express.static('public'));
+app.use('/static', express.static('public'));
+if (!isProd) {
+  const schemaJSON = mongooseDocsJSON(mongoose);
+
+  mongooseDocsOutputHTML(schemaJSON, __dirname + '/public/docs');
+}
+
 
 app.use(express.json());
 
@@ -50,7 +60,6 @@ app.use(helmet()); // For security
 
 app.use('/api/v1', router);
 
-const isProd = process.env.NODE_ENV !== 'development';
 const routes = listEndpoints(app);
 const swaggerPath = isProd ? '/swagger-prod' : '/swagger';
 const endpointPath = isProd ? '/endpoints-prod' : '/endpoints';
@@ -134,6 +143,7 @@ const healthCheck = () => {
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json(healthCheck());
 });
+
 
 app.all('*', (req: Request, res: Response) => {
   res.status(404).json({

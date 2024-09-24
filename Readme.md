@@ -25,6 +25,7 @@ Follows a domain driven architecture
 - Make compatible with ESM
 - Publish mongoose id validator
 - Publish swagger micro module
+- Publish mongoose docs
 
 ## To start
 - Delete unused code
