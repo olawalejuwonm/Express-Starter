@@ -5,7 +5,6 @@ import { constructTemplate } from '../utilities/templates';
 import { IADoc, IDocs, IMethod } from '../utilities/templates/types';
 const { version } = require('../../package.json');
 
-//TODO: work on look for
 const getFullRoute = (
   dir: string,
   format: string,
@@ -102,7 +101,11 @@ const featuresPath = path.join(__dirname, '../features');
 
 const dtoPattern = 'dto.ts';
 
-const basePath = `${process.env.BASE_PATH}`;
+const basePath = process.env.BASE_PATH;
+if (!basePath) {
+  console.warn('BASE_PATH not found in .env file');
+  throw new Error('BASE_PATH not found in .env file');
+}
 const dtoFiles = getFullRoute(featuresPath, dtoPattern);
 
 const importedDTO = importEsALL(dtoFiles);
