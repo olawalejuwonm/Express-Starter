@@ -281,7 +281,7 @@ export const endpointSpec = (
     const methods = endpoint.methods;
     const endpointpath = endpoint.path;
     // url is the remaining part after basePath
-    let url = endpointpath.replace(basePath, '');
+    let url: string = endpointpath.replace(basePath, '');
     let endUrl = url;
     // name is string after the first slash
     const name = url.split('/')[1];
