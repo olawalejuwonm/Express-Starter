@@ -34,7 +34,7 @@ app.use('/static', express.static('public'));
 if (!isProd) {
   const schemaJSON = mongooseDocsJSON(mongoose);
 
-  mongooseDocsOutputHTML(schemaJSON, __dirname + '/public/docs');
+  mongooseDocsOutputHTML(schemaJSON, __dirname + '/../public/docs');
 }
 
 
