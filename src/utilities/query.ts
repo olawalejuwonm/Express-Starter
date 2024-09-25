@@ -11,7 +11,6 @@ import { FindOneReturnType } from './templates/types';
 const skippedArrayFields = ['$or'];
 const processOperators = (queryA: {
   [x: string]: any;
-  _select?: string | string[] | undefined;
   _order?: 'asc' | 'desc' | undefined;
   _orderBy?: string | undefined;
   _populate?: string | string[] | undefined;
@@ -89,7 +88,6 @@ export type QueryReturn<DT> = {
 };
 
 export type FindQuery<T> = FilterQuery<T> & {
-  _select?: string | Array<string>;
   _order?: 'asc' | 'desc';
   _orderBy?: string;
   _populate?: string | Array<string>;
@@ -101,9 +99,6 @@ export type FindQuery<T> = FilterQuery<T> & {
   _filterOnPopulate?: boolean;
 };
 
-// merge
-// _populate: [ 'createdBy', 'createdBy.colleges', 'createdBy.profile' ]
-// _populate job
 export const mergeQueries = (
   queryA: any,
   queryB: { [key: string]: string | Array<string> },
@@ -140,8 +135,7 @@ const get = async <DT extends AnyParamConstructor<any>>(
     let query: any = queryA;
     let conditions: any = conditionsA;
     const populate = query._populate || conditions._populate;
-    const select = query._select || conditions._select;
-    const limit = parseInt(query._limit || conditions._limit || '10', 10);
+    let limit = parseInt(query._limit || conditions._limit || '10', 10);
     const page = parseInt(query._page || conditions._page || '1', 10);
     const orderBy = query._orderBy || conditions._orderBy || 'createdAt';
     const order = query._order || conditions._order || 'desc';
@@ -149,10 +143,13 @@ const get = async <DT extends AnyParamConstructor<any>>(
     const keyword = query._keyword || conditions._keyword;
     const skip = (page - 1) * limit;
 
+    if (limit > 20 || limit < 1) {
+      limit = 20;
+    }
+
     // omit any field in query that's not in the model
 
     query = _.omit(query, [
-      '_select',
       '_order',
       '_orderBy',
       '_populate',
@@ -161,7 +158,6 @@ const get = async <DT extends AnyParamConstructor<any>>(
       '_page',
     ]);
     conditions = _.omit(conditions, [
-      '_select', // To select a particular field
       '_order', // Ascending or Descending. asc / desc
       '_orderBy', // the field to order
       '_populate',
@@ -178,6 +174,9 @@ const get = async <DT extends AnyParamConstructor<any>>(
       processOperators(query);
       Object.keys(query).forEach((field: any) => {
         conditions[field] = query[field];
+        if (conditions[field] === 'null') {
+          conditions[field] = null;
+        }
       });
     }
 
@@ -370,13 +369,6 @@ const get = async <DT extends AnyParamConstructor<any>>(
         });
       } else {
         q = (q as any).populate(processPopulate(populate));
-      }
-    }
-    if (select) {
-      if (Array.isArray(select) && select.length) {
-        q = q.select(select.join(' '));
-      } else {
-        q = q.select(select);
       }
     }
     if (multiple) {
