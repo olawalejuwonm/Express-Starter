@@ -139,7 +139,14 @@ const get = async <DT extends AnyParamConstructor<any>>(
     const page = parseInt(query._page || conditions._page || '1', 10);
     const orderBy = query._orderBy || conditions._orderBy || 'createdAt';
     const order = query._order || conditions._order || 'desc';
-    const searchBy = query._searchBy || conditions._searchBy;
+    let searchBy = query._searchBy || conditions._searchBy;
+    if (typeof searchBy === 'string') {
+      try {
+        searchBy = JSON.parse(searchBy);
+      } catch (error) {
+        throw new Error('Invalid searchBy query');
+      }
+    }
     const keyword = query._keyword || conditions._keyword;
     const skip = (page - 1) * limit;
 
